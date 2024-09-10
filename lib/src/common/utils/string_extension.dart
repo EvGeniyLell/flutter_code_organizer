@@ -8,5 +8,4 @@ extension StringExtension on String {
   String fromFilePathToDirPath() {
     return substring(0, lastIndexOf('/'));
   }
-
 }
