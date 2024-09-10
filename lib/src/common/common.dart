@@ -12,5 +12,5 @@ abstract class CommonModule {
 
   void init({required List<String> remoteArguments});
 
-  void run();
+  void call();
 }
