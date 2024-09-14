@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_code_inspector/src/common/common.dart';
 
+import 'package:flutter_code_inspector/src/headers/header_sorter_data/header_sorter_data.dart';
+
 class HeadersSorterModule extends CommonModule {
   static const yamlConfigName = 'flutter_headers_sorter';
 
@@ -20,6 +22,7 @@ class HeadersSorterModule extends CommonModule {
     abbr: 'h',
     defaultValue: false,
   );
+  late final String projectName;
 
   @override
   void init({required List<String> remoteArguments}) {
@@ -30,6 +33,7 @@ class HeadersSorterModule extends CommonModule {
     ].initWith(
       yamlConfigName: yamlConfigName,
       remoteArguments: remoteArguments,
+      projectNameCallback: (name) => projectName = name,
     );
   }
 
@@ -49,6 +53,30 @@ class HeadersSorterModule extends CommonModule {
       allowedDirectories: allowedDirectories.value,
       allowedExtensions: allowedExtensions.value,
     );
+
+    print('files count: ${files.length}');
+    final file = files.first;
+    print('file: ${file.path}');
+    final hFile = HeaderSorterData(
+      file: file,
+      projectName: projectName,
+    );
+    print('dartImports: ${hFile.imports.dartImports}');
+    print('flutterImports: ${hFile.imports.flutterImports}');
+    print('packageImports: ${hFile.imports.packageImports}');
+    print('projectImports: ${hFile.imports.projectImports}');
+
+    print('dartExports: ${hFile.exports.dartExports}');
+    print('flutterExports: ${hFile.exports.flutterExports}');
+    print('packageExports: ${hFile.exports.packageExports}');
+    print('projectExports: ${hFile.exports.projectExports}');
+
+    print('parts: ${hFile.parts.parts}');
+
+    print('code: ${hFile.code}');
+
+    print('firstRemoveIndex: ${hFile.firstRemoveIndex}');
+    print('exports.firstRemoveIndex: ${hFile.exports.firstRemoveIndex}');
   }
 
   // Finders ------------------------------------------------------------------

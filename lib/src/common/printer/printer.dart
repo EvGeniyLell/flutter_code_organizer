@@ -58,11 +58,18 @@ class Printer {
     stdout.writeln(_merge(_f2 + _l1, 8, message));
   }
 
+  /// RAW string
+  void raw(String? message) {
+    stdout.writeln(message);
+  }
+
+
   String _merge(String pattern, int shift, String? message) {
     final String extendedPattern = () {
       if (pattern.length > 2 &&
           pattern[pattern.length - 1] == pattern[pattern.length - 2]) {
-        return pattern.padRight(40, pattern[pattern.length - 1]);
+
+        return pattern.padRight(120, pattern[pattern.length - 1]);
       }
       return pattern;
     }();

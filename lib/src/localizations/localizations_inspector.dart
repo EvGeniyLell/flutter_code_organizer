@@ -1,8 +1,10 @@
 import 'dart:io';
 
-import 'package:colorize/colorize.dart';
+
 import 'package:flutter_code_inspector/src/common/common.dart';
-import 'package:flutter_code_inspector/src/localizations/localization_file/localization_file.dart';
+import 'package:flutter_code_inspector/src/localizations/localization_inspector/localization_inspector_data.dart';
+import 'package:flutter_code_inspector/src/localizations/localization_inspector/localization_inspector_exception.dart';
+import 'package:flutter_code_inspector/src/localizations/utils/printer_extension.dart';
 
 class LocalizationsInspectorModule extends CommonModule {
   static const yamlConfigName = 'flutter_localizations_inspector';
@@ -23,7 +25,7 @@ class LocalizationsInspectorModule extends CommonModule {
   );
   final findKeyDuplicates = RemoteConfigFlag(
     name: 'find_key_duplicates',
-    defaultValue: true,
+    defaultValue: false,
   );
   final findValueDuplicates = RemoteConfigFlag(
     name: 'find_value_duplicates',
@@ -66,39 +68,58 @@ class LocalizationsInspectorModule extends CommonModule {
       _printHelp();
       return;
     }
+    _inspectAndPrintResults();
+  }
 
-    final stopwatch = Stopwatch()..start();
+  void _inspectAndPrintResults() {
+    final result = measurableBlock<InspectionResult>(() {
+      final currentPath = Directory.current.path;
 
-    final currentPath = Directory.current.path;
+      final files = getFiles(
+        currentPath,
+        allowedDirectories: allowedDirectories.value,
+        allowedExtensions: allowedExtensions.value,
+      );
 
-    final files = getFiles(
-      currentPath,
-      allowedDirectories: allowedDirectories.value,
-      allowedExtensions: allowedExtensions.value,
+      final localizationDataList = files.map((file) {
+        return LocalizationInspectorData(
+          file: file,
+          localePattern: localePattern.value,
+        );
+      }).toList();
+
+      final Set<LocalizationInspectorException> exceptions = {
+        ..._findDuplicates(localizationDataList),
+        ..._findMissed(localizationDataList),
+      };
+
+      return InspectionResult(
+        exceptionsGroups: exceptions.toList().groupByItem(),
+        filesCount: files.length,
+      );
+    });
+
+    final printer = Printer()
+      ..h1('Localizations Inspector')
+      ..exceptionsGroups(result.data.exceptionsGroups);
+
+    final errorCount = printer.colorizeError(
+      '${result.data.exceptionsGroups.length} errors',
+      when: result.data.exceptionsGroups.isNotEmpty,
     );
 
-    final localizationFiles = files.map((file) {
-      return LocalizationFile(file, localePattern: localePattern.value);
-    }).toList();
-
-    final Set<LocalizationFileException> searchResults = {};
-
-    _findDuplicates(localizationFiles, searchResults);
-    _findMissed(localizationFiles, searchResults);
-
-    _printSearchResults(
-      searchResults.toList(),
-      filesCount: localizationFiles.length,
-      stopwatch: stopwatch,
-    );
+    final timeTitle = '${result.duration.inSeconds}'
+        '.${result.duration.inMilliseconds % 1000} seconds';
+    printer.f1('Reviewed ${result.data.filesCount} '
+        'files with $errorCount in $timeTitle');
   }
 
   // Finders ------------------------------------------------------------------
 
-  void _findDuplicates(
-    List<LocalizationFile> localizationFiles,
-    Set<LocalizationFileException> searchResults,
+  Set<LocalizationInspectorException> _findDuplicates(
+    List<LocalizationInspectorData> localizationFiles,
   ) {
+    final exceptions = <LocalizationInspectorException>{};
     if (findKeyDuplicates.value ||
         findValueDuplicates.value ||
         findKeyAndValueDuplicates.value) {
@@ -107,8 +128,7 @@ class LocalizationsInspectorModule extends CommonModule {
           for (int bIndex = aIndex + 1; bIndex < group.length; bIndex += 1) {
             final aLFile = group[aIndex];
             final bLFile = group[bIndex];
-
-            searchResults.addAll(
+            exceptions.addAll(
               aLFile.findIntersections(
                 bLFile,
                 findKeyDuplicates: findKeyDuplicates.value,
@@ -120,12 +140,13 @@ class LocalizationsInspectorModule extends CommonModule {
         }
       });
     }
+    return exceptions;
   }
 
-  void _findMissed(
-    List<LocalizationFile> localizationFiles,
-    Set<LocalizationFileException> searchResults,
+  Set<LocalizationInspectorException> _findMissed(
+    List<LocalizationInspectorData> localizationFiles,
   ) {
+    final exceptions = <LocalizationInspectorException>{};
     if (findMissedKeys.value) {
       localizationFiles.groupByFolder().forEach((group) {
         for (int aIndex = 0; aIndex < group.length; aIndex += 1) {
@@ -135,11 +156,12 @@ class LocalizationsInspectorModule extends CommonModule {
             }
             final aLFile = group[aIndex];
             final bLFile = group[bIndex];
-            searchResults.addAll(aLFile.findMissedKeys(bLFile));
+            exceptions.addAll(aLFile.findMissedKeys(bLFile));
           }
         }
       });
     }
+    return exceptions;
   }
 
   // Printer ------------------------------------------------------------------
@@ -151,56 +173,52 @@ class LocalizationsInspectorModule extends CommonModule {
       ..b1('the tool allow you keep your localizations in order')
       ..d1('')
       ..b1('Options:')
-      ..b1('  --help, -h: show this help message')
+      ..remoteConfig(
+        help,
+        description: 'show this help message',
+      )
       ..b1('')
-      ..b1('  --allowed_directories: directories to search for files')
-      ..b1('      by defaults uses "translation/.*"')
-      ..b1('  --allowed_extensions: extensions to search for files')
-      ..b1('      by defaults uses ".arb"')
-      ..b1('  --locale_pattern: pattern to extract locale from file path')
-      ..b1('      by defaults uses ".*/localeName.arb"')
+      ..remoteConfig(
+        allowedDirectories,
+        description: 'directories to search for files',
+      )
+      ..remoteConfig(
+        allowedExtensions,
+        description: 'extensions to search for files',
+      )
+      ..remoteConfig(
+        localePattern,
+        description: 'pattern to extract locale from file path',
+      )
       ..b1('')
-      ..b1('  --find_key_duplicates: find keys duplicates')
-      ..b1('      by defaults uses "true"')
-      ..b1('  --find_value_duplicates: find values duplicates')
-      ..b1('      by defaults uses "true"')
-      ..b1('  --find_key_and_value_duplicates: find keys and values duplicates')
-      ..b1('      by defaults uses "true"')
-      ..b1('  --find_missed_keys: find missed keys')
-      ..b1('      by defaults uses "true"')
+      ..remoteConfig(
+        findKeyDuplicates,
+        description: 'find keys duplicates',
+      )
+      ..remoteConfig(
+        findValueDuplicates,
+        description: 'find values duplicates',
+      )
+      ..remoteConfig(
+        findKeyAndValueDuplicates,
+        description: 'find keys and values duplicates',
+      )
+      ..remoteConfig(
+        findMissedKeys,
+        description: 'find missed keys',
+      )
       ..d1('')
       ..b1('  yaml config name: $yamlConfigName')
       ..f1('');
   }
+}
 
-  void _printSearchResults(
-    List<LocalizationFileException> searchResults, {
-    required int filesCount,
-    required Stopwatch stopwatch,
-  }) {
-    Printer().h1('Localizations Inspector');
+class InspectionResult {
+  const InspectionResult({
+    required this.exceptionsGroups,
+    required this.filesCount,
+  });
 
-    final resultsGroups = searchResults.groupByItem();
-
-    for (final group in resultsGroups) {
-      final issue = group.firstOrNull;
-      if (issue != null) {
-        Printer().d1(issue.toIssue());
-        for (final item in group) {
-          Printer().c1('file ${item.toLink()}');
-        }
-      }
-    }
-
-    ///
-    stopwatch.stop();
-    final errorsTitle = Colorize('${searchResults.length} errors');
-    if (searchResults.isNotEmpty) {
-      errorsTitle.red();
-    }
-
-    final timeTitle = '${stopwatch.elapsed.inSeconds}'
-        '.${stopwatch.elapsedMilliseconds} seconds';
-    Printer().f1('Reviewed $filesCount files with $errorsTitle in $timeTitle');
-  }
+  final List<List<LocalizationInspectorException>> exceptionsGroups;
+  final int filesCount;
 }

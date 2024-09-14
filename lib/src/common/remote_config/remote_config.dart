@@ -65,7 +65,24 @@ class RemoteConfigFlag extends RemoteConfig<bool> {
   bool? readArgumentValue(ArgumentsMap arguments) {
     final value = arguments[name] ?? arguments[abbr];
     if (value != null) {
-      return true;
+      if (value.isEmpty) {
+        return true;
+      } else {
+        switch (value.first.toLowerCase()) {
+          case 't':
+          case 'true':
+          case 'enabled':
+          case 'yes':
+          case '1':
+            return true;
+          case 'f':
+          case 'false':
+          case 'disabled':
+          case 'no':
+          case '0':
+            return false;
+        }
+      }
     }
     return null;
   }
@@ -126,6 +143,7 @@ extension ListRemoteConfigExtension on List<RemoteConfig> {
   void initWith({
     required String yamlConfigName,
     required List<String> remoteArguments,
+    void Function(String)? projectNameCallback,
   }) {
     final currentPath = Directory.current.path;
 
@@ -133,6 +151,8 @@ extension ListRemoteConfigExtension on List<RemoteConfig> {
       try {
         final yamlFile = File('$currentPath/pubspec.yaml');
         final yamlRoot = loadYaml(yamlFile.readAsStringSync()) as YamlMap;
+        final projectName = yamlRoot['name'].toString();
+        projectNameCallback?.call(projectName);
         return yamlRoot[yamlConfigName] as YamlMap;
       } on Object catch (_) {
         return null;

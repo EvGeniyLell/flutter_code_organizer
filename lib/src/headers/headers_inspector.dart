@@ -1,6 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter_code_inspector/src/common/common.dart';
+import 'package:flutter_code_inspector/src/headers/header_sorter_data/header_sorter_data.dart';
+import 'package:flutter_code_inspector/src/headers/utils/printer_extension.dart';
+
+import 'header_inspector_data/header_inspector_data.dart';
+import 'header_inspector_data/header_inspector_exception.dart';
 
 class HeadersInspectorModule extends CommonModule {
   static const yamlConfigName = 'flutter_headers_inspector';
@@ -9,7 +14,7 @@ class HeadersInspectorModule extends CommonModule {
 
   final allowedDirectories = RemoteConfigMultiOption(
     name: 'allowed_directories',
-    defaultValue: ['lib/.*', 'plugins/.*'],
+    defaultValue: ['lib/.*'],
   );
   final allowedExtensions = RemoteConfigMultiOption(
     name: 'allowed_extensions',
@@ -20,6 +25,7 @@ class HeadersInspectorModule extends CommonModule {
     abbr: 'h',
     defaultValue: false,
   );
+  late final String projectName;
 
   @override
   void init({required List<String> remoteArguments}) {
@@ -30,6 +36,7 @@ class HeadersInspectorModule extends CommonModule {
     ].initWith(
       yamlConfigName: yamlConfigName,
       remoteArguments: remoteArguments,
+      projectNameCallback: (name) => projectName = name,
     );
   }
 
@@ -40,15 +47,50 @@ class HeadersInspectorModule extends CommonModule {
       return;
     }
 
-    final stopwatch = Stopwatch()..start();
+    _inspectAndPrintResults();
+  }
 
-    final currentPath = Directory.current.path;
+  void _inspectAndPrintResults() {
+    final result = measurableBlock<InspectionResult>(() {
+      final currentPath = Directory.current.path;
 
-    final files = getFiles(
-      currentPath,
-      allowedDirectories: allowedDirectories.value,
-      allowedExtensions: allowedExtensions.value,
+      final files = getFiles(
+        currentPath,
+        allowedDirectories: allowedDirectories.value,
+        allowedExtensions: allowedExtensions.value,
+      );
+
+      final exceptions = <HeaderInspectorException>[];
+
+      for (final file in files) {
+        final data = HeaderInspectorData(
+          file: file,
+          projectDir: currentPath,
+          projectName: projectName,
+        );
+
+        exceptions.addAll(data.findAllExceptions());
+      }
+
+      return InspectionResult(
+        exceptionsGroups: exceptions.groupByFile(),
+        filesCount: files.length,
+      );
+    });
+
+    final printer = Printer()
+      ..h1('Headers Inspector')
+      ..exceptionsGroups(result.data.exceptionsGroups);
+
+    final errorCount = printer.colorizeError(
+      '${result.data.exceptionsGroups.length} errors',
+      when: result.data.exceptionsGroups.isNotEmpty,
     );
+
+    final timeTitle = '${result.duration.inSeconds}'
+        '.${result.duration.inMilliseconds % 1000} seconds';
+    printer.f1('Reviewed ${result.data.filesCount} '
+        'files with $errorCount in $timeTitle');
   }
 
   // Finders ------------------------------------------------------------------
@@ -60,25 +102,47 @@ class HeadersInspectorModule extends CommonModule {
       ..b1('the tool allow you keep your localizations in order')
       ..d1('')
       ..b1('Options:')
-      ..b1('  --help, -h: show this help message')
+      ..remoteConfig(
+        help,
+        description: 'show this help message',
+      )
       ..b1('')
-      ..b1('  --allowed_directories: directories to search for files')
-      ..b1('      by defaults uses "translation/.*"')
-      ..b1('  --allowed_extensions: extensions to search for files')
-      ..b1('      by defaults uses ".arb"')
-      ..b1('  --locale_pattern: pattern to extract locale from file path')
-      ..b1('      by defaults uses ".*/localeName.arb"')
-      ..b1('')
-      ..b1('  --find_key_duplicates: find keys duplicates')
-      ..b1('      by defaults uses "true"')
-      ..b1('  --find_value_duplicates: find values duplicates')
-      ..b1('      by defaults uses "true"')
-      ..b1('  --find_key_and_value_duplicates: find keys and values duplicates')
-      ..b1('      by defaults uses "true"')
-      ..b1('  --find_missed_keys: find missed keys')
-      ..b1('      by defaults uses "true"')
+      ..remoteConfig(
+        allowedDirectories,
+        description: 'directories to search for files',
+      )
+      ..remoteConfig(
+        allowedExtensions,
+        description: 'extensions to search for files',
+      )
       ..d1('')
       ..b1('  yaml config name: $yamlConfigName')
       ..f1('');
+  }
+}
+
+class InspectionResult {
+  const InspectionResult({
+    required this.exceptionsGroups,
+    required this.filesCount,
+  });
+
+  final List<List<HeaderInspectorException>> exceptionsGroups;
+  final int filesCount;
+}
+
+extension on List<HeaderInspectorException> {
+  List<List<HeaderInspectorException>> groupByFile() {
+    final grouped = <String, List<HeaderInspectorException>>{};
+
+    for (final exception in this) {
+      final key = exception.file.path;
+      if (!grouped.containsKey(key)) {
+        grouped[key] = [];
+      }
+      grouped[key]!.add(exception);
+    }
+
+    return grouped.values.toList();
   }
 }
