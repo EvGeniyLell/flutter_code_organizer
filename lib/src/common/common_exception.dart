@@ -3,16 +3,16 @@ import 'dart:io';
 import 'package:meta/meta.dart';
 
 @immutable
-abstract class CommonException<T extends Object> {
+abstract class CommonException {
   const CommonException({
     required this.file,
-    required this.description,
+    required this.source,
     required this.line,
     this.row,
   });
 
   final File file;
-  final T description;
+  final String source;
   final int line;
   final int? row;
 
@@ -21,14 +21,14 @@ abstract class CommonException<T extends Object> {
       identical(this, other) ||
       other is CommonException &&
           runtimeType == other.runtimeType &&
-          file == other.file &&
+          file.path == other.file.path &&
+          source == other.source &&
           line == other.line &&
-          row == other.row &&
-          description == other.description;
+          row == other.row;
 
   @override
   int get hashCode =>
-      file.hashCode ^ line.hashCode ^ row.hashCode ^ description.hashCode;
+      file.path.hashCode ^ source.hashCode ^ line.hashCode ^ row.hashCode;
 
   String asLink({String? base}) {
     final path = file.path;
@@ -41,7 +41,6 @@ abstract class CommonException<T extends Object> {
 
   @override
   String toString() {
-    return '$CommonException{link: ${asLink()}, $description}';
+    return '$CommonException{link: ${asLink()}, source: $source}';
   }
 }
-

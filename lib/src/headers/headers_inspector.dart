@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter_code_inspector/src/common/common.dart';
-import 'package:flutter_code_inspector/src/headers/header_sorter_data/header_sorter_data.dart';
+
 import 'package:flutter_code_inspector/src/headers/utils/printer_extension.dart';
 
-import 'header_inspector_data/header_inspector_data.dart';
-import 'header_inspector_data/header_inspector_exception.dart';
+import 'package:flutter_code_inspector/src/headers/header_inspector_data/header_inspector_data.dart';
+import 'package:flutter_code_inspector/src/headers/header_inspector_data/header_inspector_exception.dart';
 
 class HeadersInspectorModule extends CommonModule {
   static const yamlConfigName = 'flutter_headers_inspector';
@@ -14,11 +14,31 @@ class HeadersInspectorModule extends CommonModule {
 
   final allowedDirectories = RemoteConfigMultiOption(
     name: 'allowed_directories',
-    defaultValue: ['lib/.*'],
+    defaultValue: ['^lib/src/.*'],
   );
   final allowedExtensions = RemoteConfigMultiOption(
     name: 'allowed_extensions',
     defaultValue: ['.dart'],
+  );
+  final forbidThemselfPackageImports = RemoteConfigFlag(
+    name: 'forbid_themself_package_imports',
+    defaultValue: false,
+  );
+  final forbidOtherFeaturesPackageImports = RemoteConfigFlag(
+    name: 'forbid_other_features_package_imports',
+    defaultValue: true,
+  );
+  final forbidRelativeImports = RemoteConfigFlag(
+    name: 'forbid_relative_imports',
+    defaultValue: true,
+  );
+  final forbidPackageExports = RemoteConfigFlag(
+    name: 'forbid_package_exports',
+    defaultValue: true,
+  );
+  final forbidOtherFeaturesRelativeExports = RemoteConfigFlag(
+    name: 'forbid_other_features_relative_exports',
+    defaultValue: true,
   );
   final help = RemoteConfigFlag(
     name: 'help',
@@ -32,6 +52,11 @@ class HeadersInspectorModule extends CommonModule {
     <RemoteConfig>[
       allowedDirectories,
       allowedExtensions,
+      forbidThemselfPackageImports,
+      forbidOtherFeaturesPackageImports,
+      forbidRelativeImports,
+      forbidPackageExports,
+      forbidOtherFeaturesRelativeExports,
       help,
     ].initWith(
       yamlConfigName: yamlConfigName,
@@ -69,7 +94,17 @@ class HeadersInspectorModule extends CommonModule {
           projectName: projectName,
         );
 
-        exceptions.addAll(data.findAllExceptions());
+        exceptions.addAll(
+          data.findAllExceptions(
+            forbidThemselfPackageImports: forbidThemselfPackageImports.value,
+            forbidOtherFeaturesPackageImports:
+                forbidOtherFeaturesPackageImports.value,
+            forbidRelativeImports: forbidRelativeImports.value,
+            forbidPackageExports: forbidPackageExports.value,
+            forbidOtherFeaturesRelativeExports:
+                forbidOtherFeaturesRelativeExports.value,
+          ),
+        );
       }
 
       return InspectionResult(

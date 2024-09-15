@@ -19,24 +19,23 @@ extension PrinterLocalizationInspectorExceptionExtension on Printer {
     String e(String? message) => colorizeError(message ?? 'null');
 
     d1(
-      switch (exception.description.type) {
+      switch (exception.type) {
         LocalizationInspectorExceptionType.keySame =>
-          'Key ${e(exception.description.key)} is duplicated',
+          'Key ${e(exception.key)} is duplicated',
         LocalizationInspectorExceptionType.valueSame =>
-          'Value ${e(exception.description.value?.sample())} is duplicated',
+          'Value ${e(exception.value?.sample())} is duplicated',
         LocalizationInspectorExceptionType.keyAndValueSame =>
-          'Key ${e(exception.description.key)} and Value are duplicated',
+          'Key ${e(exception.key)} and Value are duplicated',
         LocalizationInspectorExceptionType.keyMissed =>
-          'Key ${e(exception.description.key)} is missed',
+          'Key ${e(exception.key)} is missed',
       },
     );
   }
 
   void exceptionAsGroupItem(LocalizationInspectorException exception) {
-    final description = exception.description;
     c1(
       'file ${exception.asLink()} '
-      '(${description.key}: ${description.value?.sample()})',
+      '(${exception.key}: ${exception.value?.sample()})',
     );
   }
 }

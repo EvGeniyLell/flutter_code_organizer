@@ -56,7 +56,7 @@ analyzer:
     non_constant_identifier_names: error
     null_check_on_nullable_type_parameter: error
     null_closures: warning
-    one_member_abstracts: info
+    one_member_abstracts: ignore
     only_throw_errors: error
     overridden_fields: warning
     package_api_docs: error

@@ -4,8 +4,7 @@ import 'dart:io';
 
 import 'package:meta/meta.dart';
 
-import '../../common/common_exception.dart';
-import 'header_inspector_exception.dart';
+import 'package:flutter_code_inspector/src/headers/header_inspector_data/header_inspector_exception.dart';
 
 class HeaderInspectorData {
   factory HeaderInspectorData({
@@ -35,7 +34,13 @@ class HeaderInspectorData {
   final String projectDir;
   final String projectName;
 
-  List<HeaderInspectorException> findAllExceptions() {
+  List<HeaderInspectorException> findAllExceptions({
+    required bool forbidThemselfPackageImports,
+    required bool forbidOtherFeaturesPackageImports,
+    required bool forbidRelativeImports,
+    required bool forbidPackageExports,
+    required bool forbidOtherFeaturesRelativeExports,
+  }) {
     final List<HeaderInspectorException> results = [];
     void addAll(List<HeaderInspectorException?> exceptions) {
       results.addAll(exceptions.whereType<HeaderInspectorException>());
@@ -43,16 +48,24 @@ class HeaderInspectorData {
 
     int lineIndex = 0;
     for (final line in lines) {
-      lineIndex += 1;
-      final item = _Item(file: file, source: line, index: lineIndex);
+      //lineIndex += 1;
+      final item = _Item(
+        file: file,
+        source: line,
+        index: lineIndex++,
+        features: file.features(projectDir),
+      );
+
       addAll([
         // imports
-        forbiddenThemselfImports(item),
-        forbiddenThemselfImports(item),
-        forbiddenRelativeImports(item),
+        if (forbidThemselfPackageImports) forbiddenThemselfPackageImports(item),
+        if (forbidRelativeImports) forbiddenRelativeImports(item),
+        if (forbidOtherFeaturesPackageImports)
+          forbiddenOtherFeaturesPackageImports(item),
         // exports
-        forbiddenPackageExports(item),
-        forbiddenOtherFeaturesRelativeExports(item),
+        if (forbidPackageExports) forbiddenPackageExports(item),
+        if (forbidOtherFeaturesRelativeExports)
+          forbiddenOtherFeaturesRelativeExports(item),
       ]);
     }
 
@@ -68,18 +81,44 @@ extension on HeaderInspectorData {
   ///     import 'package:app/src/feature/sub_feature/file.dart';
   ///     import 'package:app/src/feature/sub_feature/sub_feature.dart';
   ///     import 'package:app/src/feature/feature.dart';
-  HeaderInspectorException? forbiddenThemselfImports(_Item item) {
-    final features = file.features(projectDir);
-    for (int i = 0; i < features.length; i += 1) {
-      final subFeatures = features.sublist(0, i + 1);
+  HeaderInspectorException? forbiddenThemselfPackageImports(_Item item) {
+    for (int i = 0; i < item.features.length; i += 1) {
+      final subFeatures = item.features.sublist(0, i + 1);
       final subPath = '${subFeatures.join('/')}/${subFeatures.last}';
-
-      return item.findException(
-        RegExp("^import 'package:$projectName/src/$subPath.dart';\$"),
-        HeaderInspectorExceptionType.themselfImports,
+      final result = item.findException(
+        Condition.pattern(
+          "^import 'package:$projectName/src/$subPath.dart';\$",
+        ),
+        HeaderInspectorExceptionType.themselfPackageImports,
       );
+      if (result != null) {
+        return result;
+      }
     }
     return null;
+  }
+
+  /// Forbidden imports from other features deep files
+  /// Example:
+  ///   for file: lib/src/feature/sub_feature/file.dart
+  ///   forbidden:
+  ///     import 'package:app/src/other_feature/sub_feature/file.dart';
+  HeaderInspectorException? forbiddenOtherFeaturesPackageImports(_Item item) {
+    final feature = item.features.firstOrNull;
+    return item.findException(
+      Condition.every([
+        Condition.pattern("^import 'package:$projectName/src/(?!$feature)"),
+        Condition.pattern(
+          "^import 'package:$projectName/src/[a-z0-9_]+\\.dart'",
+          expectation: false,
+        ),
+        Condition.pattern(
+          "^import 'package:$projectName/src/([a-z0-9_]+/)*([a-z0-9_]+)/\\2\\.dart'",
+          expectation: false,
+        ),
+      ]),
+      HeaderInspectorExceptionType.otherFeaturesPackageImports,
+    );
   }
 
   /// Forbidden relative imports
@@ -88,7 +127,10 @@ extension on HeaderInspectorData {
   ///   import 'file.dart';
   HeaderInspectorException? forbiddenRelativeImports(_Item item) {
     return item.findException(
-      RegExp("^import '(?!package:)"),
+      Condition.every([
+        Condition.pattern("^import '(?!package:)"),
+        Condition.pattern("^import '(?!dart:)"),
+      ]),
       HeaderInspectorExceptionType.relativeImports,
     );
   }
@@ -98,7 +140,7 @@ extension on HeaderInspectorData {
   ///   export 'package:app/src/feature/sub_feature/file.dart';
   HeaderInspectorException? forbiddenPackageExports(_Item item) {
     return item.findException(
-      RegExp("^export 'package:"),
+      Condition.pattern("^export '(?!package:$projectName/src):"),
       HeaderInspectorExceptionType.packageExports,
     );
   }
@@ -108,8 +150,8 @@ extension on HeaderInspectorData {
   ///   export '../feature/sub_feature/file.dart';
   HeaderInspectorException? forbiddenOtherFeaturesRelativeExports(_Item item) {
     return item.findException(
-      RegExp("^export '\\.\\./"),
-      HeaderInspectorExceptionType.packageExports,
+      Condition.pattern("^export '\\.\\./"),
+      HeaderInspectorExceptionType.relativeExports,
     );
   }
 }
@@ -119,20 +161,22 @@ class _Item {
     required this.file,
     required this.source,
     required this.index,
+    required this.features,
   });
 
   final File file;
   final String source;
   final int index;
+  final List<String> features;
 
   HeaderInspectorException? findException(
-    RegExp exp,
+    Condition condition,
     HeaderInspectorExceptionType type,
   ) {
-    final hasMatch = exp.hasMatch(source);
-    if (hasMatch) {
+    if (condition.test(source)) {
       return HeaderInspectorException(
         file: file,
+        source: source,
         type: type,
         line: index,
       );
@@ -141,11 +185,72 @@ class _Item {
   }
 }
 
+abstract class Condition {
+  const Condition();
+
+  factory Condition.pattern(
+    String pattern, {
+    bool expectation = true,
+  }) =>
+      ConditionExp(exp: RegExp(pattern), expectation: expectation);
+
+  factory Condition.exp(
+    RegExp exp, {
+    bool expectation = true,
+  }) =>
+      ConditionExp(exp: exp, expectation: expectation);
+
+  factory Condition.any(List<Condition> subConditions) =>
+      ConditionAny(subConditions);
+
+  factory Condition.every(List<Condition> subConditions) =>
+      ConditionEvery(subConditions);
+
+  bool test(String source);
+}
+
+class ConditionExp extends Condition {
+  const ConditionExp({
+    required this.exp,
+    this.expectation = true,
+  });
+
+  final RegExp exp;
+  final bool expectation;
+
+  @override
+  bool test(String source) {
+    return exp.hasMatch(source) == expectation;
+  }
+}
+
+class ConditionAny extends Condition {
+  const ConditionAny(this.subConditions);
+
+  final List<Condition> subConditions;
+
+  @override
+  bool test(String source) {
+    return subConditions.any((condition) => condition.test(source));
+  }
+}
+
+class ConditionEvery extends Condition {
+  const ConditionEvery(this.subConditions);
+
+  final List<Condition> subConditions;
+
+  @override
+  bool test(String source) {
+    return subConditions.every((condition) => condition.test(source));
+  }
+}
+
 extension on File {
   List<String> features(String projectDir) {
     // print('File: $path');
     // print('    : $projectDir/lib/src/(.*)/[a-z_].dart');
-    return RegExp('^$projectDir/lib/src/(.*)/[a-z_]+.dart\$')
+    return RegExp('^$projectDir/lib/src/(.*)/[a-z_\\.]+.dart\$')
             .firstMatch(path)
             ?.group(1)
             ?.split('/') ??

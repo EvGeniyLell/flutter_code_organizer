@@ -23,12 +23,14 @@ extension PrinterHeaderInspectorExceptionExtension on Printer {
     String e(String? message) => colorizeError(message ?? 'null');
 
     final description = switch (exception.type) {
-      HeaderInspectorExceptionType.themselfImports => e('Self imports'),
+      HeaderInspectorExceptionType.themselfPackageImports => e('Self imports'),
+      HeaderInspectorExceptionType.otherFeaturesPackageImports =>
+        e('Other features imports'),
       HeaderInspectorExceptionType.relativeImports => e('Relative imports'),
       HeaderInspectorExceptionType.packageExports => e('Package exports'),
       HeaderInspectorExceptionType.relativeExports => e('Relative exports'),
     };
 
-    c1('file ${exception.asLink()} ($description)');
+    c1('file ${exception.asLink()} ($description) ${exception.source}');
   }
 }

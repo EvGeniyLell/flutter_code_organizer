@@ -25,7 +25,8 @@ Iterable<File> getFiles(
 
     if (fileAllowed && allowedDirectories.isNotEmpty) {
       fileAllowed = allowedDirectories.any((pattern) {
-        return RegExp(pattern).hasMatch(file.path);
+        final path = file.path.replaceFirst('$currentPath/', '');
+        return RegExp(pattern).hasMatch(path);
       });
     }
 
