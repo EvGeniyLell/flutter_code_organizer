@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:flutter_code_inspector/src/common/common.dart';
+import 'package:flutter_code_organizer/src/common/common.dart';
 
 void main() {
   final printer = Printer();

@@ -1,5 +1,5 @@
-import 'package:flutter_code_inspector/src/common/common.dart';
-import 'package:flutter_code_inspector/src/localizations/localization_inspector/localization_inspector_exception.dart';
+import 'package:flutter_code_organizer/src/common/common.dart';
+import 'package:flutter_code_organizer/src/localizations/localization_inspector/localization_inspector_exception.dart';
 
 extension PrinterLocalizationInspectorExceptionExtension on Printer {
   void exceptionsGroups(List<List<LocalizationInspectorException>> groups) {

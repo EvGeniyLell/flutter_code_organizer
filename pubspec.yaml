@@ -1,4 +1,4 @@
-name: flutter_code_inspector
+name: flutter_code_organizer
 description: Help organize your flutter code
 version: 0.0.1+7
 
@@ -15,4 +15,4 @@ dev_dependencies:
   lints: ^4.0.0
   test: ^1.25.8
 
-flutter_code_inspector:
+flutter_code_organizer:

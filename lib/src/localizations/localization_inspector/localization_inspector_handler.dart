@@ -1,11 +1,12 @@
 import 'dart:io';
 
-import 'package:flutter_code_inspector/src/common/common.dart';
-import 'package:flutter_code_inspector/src/localizations/localization_inspector/localization_inspector_exception.dart';
-import 'package:flutter_code_inspector/src/localizations/utils/arb_lines_extension.dart';
+import 'package:flutter_code_organizer/src/common/common.dart';
+import 'package:flutter_code_organizer/src/localizations/localization_inspector/localization_inspector_exception.dart';
+import 'package:flutter_code_organizer/src/localizations/utils/arb_lines_extension.dart';
+import 'package:meta/meta.dart';
 
-class LocalizationInspectorData {
-  factory LocalizationInspectorData({
+class LocalizationInspectorHandler {
+  factory LocalizationInspectorHandler({
     required File file,
     required String localePattern,
   }) {
@@ -22,7 +23,7 @@ class LocalizationInspectorData {
       final itemMath = itemRegExp.firstMatch(line);
       final key = itemMath?.group(1);
       if (key != null) {
-        return _Item(
+        return Item(
           key: key,
           value: itemMath?.group(2),
           lineIndex: lineNumber,
@@ -30,29 +31,27 @@ class LocalizationInspectorData {
       }
     });
 
-    return LocalizationInspectorData._(
+    return LocalizationInspectorHandler._(
       file: file,
       locale: locale,
       items: items,
     );
   }
 
-  const LocalizationInspectorData._({
+  const LocalizationInspectorHandler._({
     required this.file,
     required this.locale,
-    required List<_Item> items,
+    required List<Item> items,
   }) : _items = items;
 
   final File file;
   final String locale;
-  final List<_Item> _items;
-
-  // TODO: add support for call method to exec all checks
+  final List<Item> _items;
 
   /// Search for intersections between localizations different features.
   /// If other localization has the same key or value.
   List<LocalizationInspectorException> findIntersections(
-    LocalizationInspectorData other, {
+    LocalizationInspectorHandler other, {
     required bool findKeyAndValueDuplicates,
     required bool findKeyDuplicates,
     required bool findValueDuplicates,
@@ -85,7 +84,7 @@ class LocalizationInspectorData {
   /// Search for missed keys between localizations for the same feature.
   /// If other localization has not the same key.
   List<LocalizationInspectorException> findMissedKeys(
-    LocalizationInspectorData other,
+    LocalizationInspectorHandler other,
   ) {
     final result = <LocalizationInspectorException>[];
     for (final item in _items) {
@@ -109,8 +108,9 @@ class LocalizationInspectorData {
   }
 }
 
-class _Item {
-  const _Item({
+@visibleForTesting
+class Item {
+  const Item({
     required this.key,
     required this.value,
     required this.lineIndex,
@@ -120,8 +120,8 @@ class _Item {
   final String? value;
   final int lineIndex;
 
-  _Item copyWithLineNumber(int lineNumber) {
-    return _Item(key: key, value: value, lineIndex: lineNumber);
+  Item copyWithLineNumber(int lineNumber) {
+    return Item(key: key, value: value, lineIndex: lineNumber);
   }
 
   LocalizationInspectorException toException({
@@ -139,14 +139,15 @@ class _Item {
 
   @override
   String toString() {
-    return '$_Item{key: $key, value: $value, '
+    return '$Item{key: $key, value: $value, '
         'lineNumber: $lineIndex}';
   }
 }
 
-extension GroupLocalizationFileExtension on List<LocalizationInspectorData> {
-  List<List<LocalizationInspectorData>> groupByLocale() {
-    final result = <List<LocalizationInspectorData>>[];
+extension GroupLocalizationInspectorHandlerIterableExtension
+    on Iterable<LocalizationInspectorHandler> {
+  List<List<LocalizationInspectorHandler>> groupByLocale() {
+    final result = <List<LocalizationInspectorHandler>>[];
     for (final localizationFile in this) {
       final index = result.indexWhere((group) {
         return group.first.locale == localizationFile.locale;
@@ -160,8 +161,8 @@ extension GroupLocalizationFileExtension on List<LocalizationInspectorData> {
     return result;
   }
 
-  List<List<LocalizationInspectorData>> groupByFolder() {
-    final result = <List<LocalizationInspectorData>>[];
+  List<List<LocalizationInspectorHandler>> groupByFolder() {
+    final result = <List<LocalizationInspectorHandler>>[];
     for (final localizationFile in this) {
       final index = result.indexWhere((group) {
         return group.first.file.path.fromFilePathToDirPath() ==
@@ -174,5 +175,56 @@ extension GroupLocalizationFileExtension on List<LocalizationInspectorData> {
       }
     }
     return result;
+  }
+}
+
+extension FindLocalizationInspectorHandlerIterableExtension
+    on Iterable<LocalizationInspectorHandler> {
+  Set<LocalizationInspectorException> findDuplicates({
+    required bool findKeyAndValueDuplicates,
+    required bool findKeyDuplicates,
+    required bool findValueDuplicates,
+  }) {
+    final exceptions = <LocalizationInspectorException>{};
+    if (findKeyDuplicates || findValueDuplicates || findKeyAndValueDuplicates) {
+      groupByLocale().forEach((group) {
+        for (int aIndex = 0; aIndex < group.length; aIndex += 1) {
+          for (int bIndex = aIndex + 1; bIndex < group.length; bIndex += 1) {
+            final aLHandler = group[aIndex];
+            final bLHandler = group[bIndex];
+            exceptions.addAll(
+              aLHandler.findIntersections(
+                bLHandler,
+                findKeyDuplicates: findKeyDuplicates,
+                findValueDuplicates: findValueDuplicates,
+                findKeyAndValueDuplicates: findKeyAndValueDuplicates,
+              ),
+            );
+          }
+        }
+      });
+    }
+    return exceptions;
+  }
+
+  Set<LocalizationInspectorException> findMissed({
+    required bool findMissedKeys,
+  }) {
+    final exceptions = <LocalizationInspectorException>{};
+    if (findMissedKeys) {
+      groupByFolder().forEach((group) {
+        for (int aIndex = 0; aIndex < group.length; aIndex += 1) {
+          for (int bIndex = 0; bIndex < group.length; bIndex += 1) {
+            if (aIndex == bIndex) {
+              continue;
+            }
+            final aLHandler = group[aIndex];
+            final bLHandler = group[bIndex];
+            exceptions.addAll(aLHandler.findMissedKeys(bLHandler));
+          }
+        }
+      });
+    }
+    return exceptions;
   }
 }

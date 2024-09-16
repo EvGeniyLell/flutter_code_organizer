@@ -1,11 +1,12 @@
 import 'dart:io';
 
-import 'package:flutter_code_inspector/src/common/common.dart';
+import 'package:flutter_code_organizer/src/common/common.dart';
 
-import 'package:flutter_code_inspector/src/headers/utils/printer_extension.dart';
+import 'package:flutter_code_organizer/src/headers/utils/printer_extension.dart';
 
-import 'package:flutter_code_inspector/src/headers/header_inspector_data/header_inspector_data.dart';
-import 'package:flutter_code_inspector/src/headers/header_inspector_data/header_inspector_exception.dart';
+import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_handler.dart';
+import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
+import 'package:meta/meta.dart';
 
 class HeadersInspectorModule extends CommonModule {
   static const yamlConfigName = 'flutter_headers_inspector';
@@ -88,14 +89,14 @@ class HeadersInspectorModule extends CommonModule {
       final exceptions = <HeaderInspectorException>[];
 
       for (final file in files) {
-        final data = HeaderInspectorData(
+        final handler = HeaderInspectorHandler(
           file: file,
           projectDir: currentPath,
           projectName: projectName,
         );
 
         exceptions.addAll(
-          data.findAllExceptions(
+          handler.findAllExceptions(
             forbidThemselfPackageImports: forbidThemselfPackageImports.value,
             forbidOtherFeaturesPackageImports:
                 forbidOtherFeaturesPackageImports.value,
@@ -156,6 +157,7 @@ class HeadersInspectorModule extends CommonModule {
   }
 }
 
+@visibleForTesting
 class InspectionResult {
   const InspectionResult({
     required this.exceptionsGroups,
@@ -164,20 +166,4 @@ class InspectionResult {
 
   final List<List<HeaderInspectorException>> exceptionsGroups;
   final int filesCount;
-}
-
-extension on List<HeaderInspectorException> {
-  List<List<HeaderInspectorException>> groupByFile() {
-    final grouped = <String, List<HeaderInspectorException>>{};
-
-    for (final exception in this) {
-      final key = exception.file.path;
-      if (!grouped.containsKey(key)) {
-        grouped[key] = [];
-      }
-      grouped[key]!.add(exception);
-    }
-
-    return grouped.values.toList();
-  }
 }

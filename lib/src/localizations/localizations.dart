@@ -1,3 +1,3 @@
 library localizations;
 
-export 'package:flutter_code_inspector/src/localizations/localizations_inspector.dart';
+export 'package:flutter_code_organizer/src/localizations/localizations_inspector.dart';

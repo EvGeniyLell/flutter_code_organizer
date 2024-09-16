@@ -1,8 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter_code_inspector/src/common/common.dart';
+import 'package:flutter_code_organizer/src/common/common.dart';
 
-import 'package:flutter_code_inspector/src/headers/header_sorter_data/header_sorter_data.dart';
+import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_handler.dart';
+
+import 'package:flutter_code_organizer/src/headers/utils/printer_extension.dart';
+import 'package:meta/meta.dart';
 
 class HeadersSorterModule extends CommonModule {
   static const yamlConfigName = 'flutter_headers_sorter';
@@ -11,7 +14,7 @@ class HeadersSorterModule extends CommonModule {
 
   final allowedDirectories = RemoteConfigMultiOption(
     name: 'allowed_directories',
-    defaultValue: ['lib/.*', 'plugins/.*'],
+    defaultValue: ['^lib/src/.*', '^plugins/.*'],
   );
   final allowedExtensions = RemoteConfigMultiOption(
     name: 'allowed_extensions',
@@ -44,39 +47,49 @@ class HeadersSorterModule extends CommonModule {
       return;
     }
 
-    final stopwatch = Stopwatch()..start();
+    _inspectAndPrintResults();
+  }
 
+  void _inspectAndPrintResults() {
     final currentPath = Directory.current.path;
 
-    final files = getFiles(
-      currentPath,
-      allowedDirectories: allowedDirectories.value,
-      allowedExtensions: allowedExtensions.value,
+    final result = measurableBlock<SortingResult>(() {
+      final files = getFiles(
+        currentPath,
+        allowedDirectories: allowedDirectories.value,
+        allowedExtensions: allowedExtensions.value,
+      );
+
+      final saved = <File>[];
+      for (final file in files) {
+        final isSaved = HeaderSorterHandler(
+          file: file,
+          projectName: projectName,
+        ).save();
+        if (isSaved) {
+          saved.add(file);
+        }
+      }
+
+      return SortingResult(
+        saved: saved,
+        filesCount: files.length,
+      );
+    });
+
+    final printer = Printer()
+      ..h1('Headers Sorter')
+      ..savedFiles(result.data.saved, currentPath: currentPath);
+
+    final errorCount = printer.colorizeError(
+      '${result.data.saved.length} errors',
+      when: result.data.saved.isNotEmpty,
     );
 
-    print('files count: ${files.length}');
-    final file = files.first;
-    print('file: ${file.path}');
-    final hFile = HeaderSorterData(
-      file: file,
-      projectName: projectName,
-    );
-    print('dartImports: ${hFile.imports.dartImports}');
-    print('flutterImports: ${hFile.imports.flutterImports}');
-    print('packageImports: ${hFile.imports.packageImports}');
-    print('projectImports: ${hFile.imports.projectImports}');
-
-    print('dartExports: ${hFile.exports.dartExports}');
-    print('flutterExports: ${hFile.exports.flutterExports}');
-    print('packageExports: ${hFile.exports.packageExports}');
-    print('projectExports: ${hFile.exports.projectExports}');
-
-    print('parts: ${hFile.parts.parts}');
-
-    print('code: ${hFile.code}');
-
-    print('firstRemoveIndex: ${hFile.firstRemoveIndex}');
-    print('exports.firstRemoveIndex: ${hFile.exports.firstRemoveIndex}');
+    final timeTitle = '${result.duration.inSeconds}'
+        '.${result.duration.inMilliseconds % 1000} seconds';
+    printer.f1('Reviewed ${result.data.filesCount} '
+        'files with $errorCount in $timeTitle');
   }
 
   // Finders ------------------------------------------------------------------
@@ -109,4 +122,15 @@ class HeadersSorterModule extends CommonModule {
       ..b1('  yaml config name: $yamlConfigName')
       ..f1('');
   }
+}
+
+@visibleForTesting
+class SortingResult {
+  const SortingResult({
+    required this.saved,
+    required this.filesCount,
+  });
+
+  final List<File> saved;
+  final int filesCount;
 }

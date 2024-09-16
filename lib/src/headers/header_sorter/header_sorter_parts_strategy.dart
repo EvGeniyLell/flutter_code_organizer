@@ -1,19 +1,19 @@
-import 'package:flutter_code_inspector/src/headers/header_sorter_data/header_sorter_data_strategy_utils.dart';
+import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 
-class HeaderSorterDataPartsStrategy {
-  factory HeaderSorterDataPartsStrategy(List<String> lines) {
+class HeaderSorterPartsStrategy {
+  factory HeaderSorterPartsStrategy(List<String> lines) {
     int? firstRemoveIndex;
     void onRemove(int index, String line) {
       firstRemoveIndex ??= index;
     }
 
-    return HeaderSorterDataPartsStrategy._(
+    return HeaderSorterPartsStrategy._(
       parts: _parts(lines, onRemove: onRemove),
       firstRemoveIndex: firstRemoveIndex,
     );
   }
 
-  HeaderSorterDataPartsStrategy._({
+  HeaderSorterPartsStrategy._({
     required this.parts,
     required this.firstRemoveIndex,
   });
@@ -26,5 +26,9 @@ class HeaderSorterDataPartsStrategy {
     List<String> lines, {
     required void Function(int index, String line) onRemove,
   }) =>
-      removeLines(lines, pattern: r"^part '.*;$", onRemove: onRemove);
+      removeLines(lines, pattern: "^part '.*;\$", onRemove: onRemove);
+
+  List<String> sorted() {
+    return [...parts];
+  }
 }

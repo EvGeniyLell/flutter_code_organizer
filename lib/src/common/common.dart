@@ -6,6 +6,7 @@ export 'printer/printer.dart';
 export 'utils/string_extension.dart';
 export 'utils/printer_extension.dart';
 export 'utils/measurable_block.dart';
+export 'utils/condition.dart';
 
 abstract class CommonModule {
   CommonModule({required List<String> remoteArguments}) {

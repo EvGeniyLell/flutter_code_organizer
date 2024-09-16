@@ -2,8 +2,8 @@ library remote_config;
 
 import 'dart:io';
 
-import 'package:flutter_code_inspector/src/common/remote_config/extensions/arguments_map_extension.dart';
-import 'package:flutter_code_inspector/src/common/remote_config/extensions/yaml_map_extension.dart';
+import 'package:flutter_code_organizer/src/common/remote_config/extensions/arguments_map_extension.dart';
+import 'package:flutter_code_organizer/src/common/remote_config/extensions/yaml_map_extension.dart';
 
 enum RemoteConfigSource {
   argument,

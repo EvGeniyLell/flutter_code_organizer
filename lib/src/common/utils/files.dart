@@ -25,11 +25,27 @@ Iterable<File> getFiles(
 
     if (fileAllowed && allowedDirectories.isNotEmpty) {
       fileAllowed = allowedDirectories.any((pattern) {
-        final path = file.path.replaceFirst('$currentPath/', '');
+        final path = file.projectPath(currentPath);
         return RegExp(pattern).hasMatch(path);
       });
     }
 
     return fileAllowed;
   });
+}
+
+extension CommonFileExtension on File {
+  List<String> getProjectSRCFeaturesByPath(String projectDir) {
+    return RegExp('^$projectDir/lib/src/(.*)/[a-z0-9_\\.]+.dart\$')
+            .firstMatch(path)
+            ?.group(1)
+            ?.split('/') ??
+        [];
+  }
+
+  String projectPath([String? projectDir]) {
+    final dir = projectDir ?? Directory.current.path;
+    return path.replaceFirst('$dir/', '');
+  }
+
 }

@@ -1,5 +1,7 @@
-import 'package:flutter_code_inspector/src/common/common.dart';
-import 'package:flutter_code_inspector/src/headers/header_inspector_data/header_inspector_exception.dart';
+import 'dart:io';
+
+import 'package:flutter_code_organizer/src/common/common.dart';
+import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
 
 extension PrinterHeaderInspectorExceptionExtension on Printer {
   void exceptionsGroups(List<List<HeaderInspectorException>> groups) {
@@ -31,6 +33,14 @@ extension PrinterHeaderInspectorExceptionExtension on Printer {
       HeaderInspectorExceptionType.relativeExports => e('Relative exports'),
     };
 
-    c1('file ${exception.asLink()} ($description) ${exception.source}');
+    c1('file ${exception.asLink()} ($description)');
+  }
+}
+
+extension PrinterHeaderSorterExceptionExtension on Printer {
+  void savedFiles(List<File> files, {required String currentPath}) {
+    for (final file in files) {
+      d1('file ${file.projectPath(currentPath)}');
+    }
   }
 }
