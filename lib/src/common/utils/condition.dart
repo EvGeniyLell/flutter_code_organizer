@@ -2,15 +2,15 @@ abstract class Condition {
   const Condition();
 
   factory Condition.pattern(
-      String pattern, {
-        bool expectation = true,
-      }) =>
+    String pattern, {
+    bool expectation = true,
+  }) =>
       ConditionExp(exp: RegExp(pattern), expectation: expectation);
 
   factory Condition.exp(
-      RegExp exp, {
-        bool expectation = true,
-      }) =>
+    RegExp exp, {
+    bool expectation = true,
+  }) =>
       ConditionExp(exp: exp, expectation: expectation);
 
   factory Condition.any(List<Condition> subConditions) =>

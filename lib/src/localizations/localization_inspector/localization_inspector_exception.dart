@@ -1,5 +1,3 @@
-
-
 import 'package:flutter_code_organizer/src/common/common_exception.dart';
 
 class LocalizationInspectorException extends CommonException {
