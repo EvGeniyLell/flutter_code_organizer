@@ -18,19 +18,26 @@ extension PrinterCommonExtension on Printer {
 }
 
 extension ColorizePrinter on Printer {
-  String colorizeError(String message, {bool when = true}) {
-    return Colorize(message).red().toString();
+  String colorize(
+    String message,
+    Colorize Function(Colorize) colorize, {
+    required bool when,
+  }) {
+    if (!when) {
+      return message;
+    }
+    return colorize(Colorize(message)).toString();
   }
 
-  String colorizeOk(String message, {bool when = true}) {
-    return Colorize(message).green().toString();
-  }
+  String colorizeError(String message, {bool when = true}) =>
+      colorize(message, (c) => c.red(), when: when);
 
-  String colorizeWarning(String message, {bool when = true}) {
-    return Colorize(message).yellow().toString();
-  }
+  String colorizeOk(String message, {bool when = true}) =>
+      colorize(message, (c) => c.green(), when: when);
 
-  String colorizeInfo(String message, {bool when = true}) {
-    return Colorize(message).cyan().toString();
-  }
+  String colorizeWarning(String message, {bool when = true}) =>
+      colorize(message, (c) => c.yellow(), when: when);
+
+  String colorizeInfo(String message, {bool when = true}) =>
+      colorize(message, (c) => c.blue(), when: when);
 }

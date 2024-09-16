@@ -83,8 +83,8 @@ class HeadersSorterModule extends CommonModule {
     });
 
     final printer = Printer()
-      ..h1('Headers Sorter');
-      //..savedFiles(result.data.saved, currentPath: currentPath);
+      ..h1('Headers Sorter')
+      ..savedFiles(result.data.saved, currentPath: currentPath);
 
     final errorCount = printer.colorizeError(
       '${result.data.saved.length} errors',

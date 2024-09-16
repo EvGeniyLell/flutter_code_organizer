@@ -1,38 +1,14 @@
 import 'dart:io';
 
-import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_exports_strategy.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_handler.dart';
-import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_imports_strategy.dart';
-import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_parts_strategy.dart';
-import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 import 'package:test/test.dart';
 
-import 'test_source/test_source.dart';
+import 'test_source_a1.dart';
 
 void main() {
   final sourceMap = {
     File('test/source_a1.dart'): sourceA1,
   };
-
-  HeaderSorterHandler createHandler(
-    TestSource source, {
-    required File file,
-    required String projectName,
-  }) {
-    final lines = source.source.split('\n');
-    final originalCode = List<String>.from(lines);
-    mergeMultilineLines(lines, startPattern: "^import '", endPattern: ';\$');
-    mergeMultilineLines(lines, startPattern: "^export '", endPattern: ';\$');
-    mergeMultilineLines(lines, startPattern: "^part '", endPattern: ';\$');
-    return HeaderSorterHandler.private(
-      file: file,
-      imports: HeaderSorterImportsStrategy(lines, projectName: projectName),
-      exports: HeaderSorterExportsStrategy(lines, projectName: projectName),
-      parts: HeaderSorterPartsStrategy(lines),
-      code: lines,
-      originalCode: originalCode,
-    );
-  }
 
   setUp(() {});
 
@@ -45,8 +21,10 @@ void main() {
         group(
           source.description,
           () {
-            final handler = createHandler(
-              source,
+            HeaderSorterHandler.reader =
+                (File file) => source.source.split('\n');
+
+            final handler = HeaderSorterHandler(
               file: file,
               projectName: source.projectName,
             );

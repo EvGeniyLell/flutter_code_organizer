@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_raw_strings
-import 'test_source.dart';
+import '../test_source/test_source.dart';
+export '../test_source/test_source.dart';
 
 const sourceA1 = TestSource(
   projectName: 'fx',

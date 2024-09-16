@@ -25,7 +25,7 @@ Iterable<File> getFiles(
 
     if (fileAllowed && allowedDirectories.isNotEmpty) {
       fileAllowed = allowedDirectories.any((pattern) {
-        final path = file.projectPath(currentPath);
+        final path = file.getRelativePath(currentPath);
         return RegExp(pattern).hasMatch(path);
       });
     }
@@ -43,9 +43,8 @@ extension CommonFileExtension on File {
         [];
   }
 
-  String projectPath([String? projectDir]) {
+  String getRelativePath([String? projectDir]) {
     final dir = projectDir ?? Directory.current.path;
     return path.replaceFirst('$dir/', '');
   }
-
 }

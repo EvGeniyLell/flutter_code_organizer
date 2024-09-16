@@ -10,12 +10,17 @@ import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_s
 import 'package:meta/meta.dart';
 
 class HeaderSorterHandler {
+  @visibleForTesting
+  static List<String> Function(File file) reader =
+      // file.readAsLinesSync() works wrong for this case
+      (File file) => file.readAsStringSync().split('\n');
+
   factory HeaderSorterHandler({
     required File file,
     required String projectName,
   }) {
-    final lines = file.readAsLinesSync();
-    final originalCode = List<String>.from(lines);
+    final lines = reader(file);
+    final originalCode = [...lines];
     mergeMultilineLines(lines, startPattern: "^import '", endPattern: ';\$');
     mergeMultilineLines(lines, startPattern: "^export '", endPattern: ';\$');
     mergeMultilineLines(lines, startPattern: "^part '", endPattern: ';\$');
@@ -94,7 +99,6 @@ class HeaderSorterHandler {
       ...parts.sorted(),
       '',
       ...bottomCode,
-      '',
     ];
 
     // remove double empty lines
@@ -127,60 +131,8 @@ class HeaderSorterHandler {
       spaceProjectRelative: spaceProjectRelative,
     );
 
-    //print('### newCode: ${newCode.length} (${originalCode.length})');
     final buffer = newCode.join('\n');
-    final originalBuffer = [...originalCode, ''].join('\n');
-    int bufIndex = 0;
-    int? difI;
-    String? getC(String s, int index) {
-      try {
-        return s[index];
-      } on Object {
-        return null;
-      }
-    }
-
-    void printSample(String l, String r, int index) {
-      if(index == -1) {
-        return;
-      }
-      const shift = 5;
-      final iStart = max(index - shift, 0);
-      print('L:----------------\n '
-          '${l.substring(iStart, min(index + shift, l.length))}\n'
-          '--------------------:L');
-      print('R:----------------\n '
-          '${r.substring(iStart, min(index + shift, r.length))}\n'
-          '--------------------:R');
-      for (int i = iStart; i < index + shift; i++) {
-        final lC = getC(l, i);
-        final rC = getC(r, i);
-        if (lC == null && rC == null) {
-          break;
-        }
-        final lR = lC != null ? '${utf8.encode(lC)}' : '[null]';
-        final rR = rC != null ? '${utf8.encode(rC)}' : '[null]';
-        print('${lR.padLeft(9)} ${rR.padLeft(9)}');
-      }
-    }
-
-    while (difI == null) {
-      final nB = getC(buffer, bufIndex);
-      final oB = getC(originalBuffer, bufIndex);
-      if (nB == null && oB == null) {
-        difI = -1;
-        break;
-      }
-      if (nB == null || oB == null) {
-        difI = bufIndex;
-        break;
-      }
-      bufIndex += 1;
-    }
-
-    print('file: ${file.path}');
-    print('difI: $difI in (${buffer.length}:${originalBuffer.length})');
-    printSample(buffer, originalBuffer, difI);
+    final originalBuffer = originalCode.join('\n');
 
     if (buffer == originalBuffer) {
       return false;

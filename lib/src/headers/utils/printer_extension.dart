@@ -40,7 +40,7 @@ extension PrinterHeaderInspectorExceptionExtension on Printer {
 extension PrinterHeaderSorterExceptionExtension on Printer {
   void savedFiles(List<File> files, {required String currentPath}) {
     for (final file in files) {
-      d1('file ${file.projectPath(currentPath)}');
+      d1('file ${file.getRelativePath(currentPath)}:0');
     }
   }
 }

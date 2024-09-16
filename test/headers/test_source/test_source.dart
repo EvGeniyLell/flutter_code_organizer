@@ -1,5 +1,3 @@
-export 'test_source_a1.dart';
-
 class TestSource {
   const TestSource({
     required this.projectName,
