@@ -7,7 +7,7 @@ import 'package:flutter_code_organizer/src/localizations/utils/printer_extension
 import 'package:meta/meta.dart';
 
 class LocalizationsInspectorModule extends CommonModule {
-  static const yamlConfigName = 'flutter_localizations_inspector';
+  static const yamlConfigName = 'localizations_inspector';
 
   LocalizationsInspectorModule({required super.remoteArguments});
 

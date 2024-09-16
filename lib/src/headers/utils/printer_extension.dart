@@ -38,9 +38,12 @@ extension PrinterHeaderInspectorExceptionExtension on Printer {
 }
 
 extension PrinterHeaderSorterExceptionExtension on Printer {
-  void savedFiles(List<File> files, {required String currentPath}) {
-    for (final file in files) {
-      d1('file ${file.getRelativePath(currentPath)}:0');
+  void savedFiles(List<File> files, {String? currentPath}) {
+    if (files.isNotEmpty) {
+      d1('sorted files:');
+      for (final file in files) {
+        c1('file ${file.path}');
+      }
     }
   }
 }

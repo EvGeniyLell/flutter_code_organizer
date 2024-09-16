@@ -8,7 +8,7 @@ import 'package:flutter_code_organizer/src/headers/utils/printer_extension.dart'
 import 'package:meta/meta.dart';
 
 class HeadersSorterModule extends CommonModule {
-  static const yamlConfigName = 'flutter_headers_sorter';
+  static const yamlConfigName = 'headers_sorter';
 
   HeadersSorterModule({required super.remoteArguments});
 
@@ -86,15 +86,15 @@ class HeadersSorterModule extends CommonModule {
       ..h1('Headers Sorter')
       ..savedFiles(result.data.saved, currentPath: currentPath);
 
-    final errorCount = printer.colorizeError(
-      '${result.data.saved.length} errors',
+    final sortedCount = printer.colorizeInfo(
+      '${result.data.saved.length} sorted',
       when: result.data.saved.isNotEmpty,
     );
 
     final timeTitle = '${result.duration.inSeconds}'
         '.${result.duration.inMilliseconds % 1000} seconds';
     printer.f1('Reviewed ${result.data.filesCount} '
-        'files with $errorCount in $timeTitle');
+        'files with $sortedCount in $timeTitle');
   }
 
   // Finders ------------------------------------------------------------------

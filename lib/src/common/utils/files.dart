@@ -43,8 +43,7 @@ extension CommonFileExtension on File {
         [];
   }
 
-  String getRelativePath([String? projectDir]) {
-    final dir = projectDir ?? Directory.current.path;
+  String getRelativePath(String dir) {
     return path.replaceFirst('$dir/', '');
   }
 }

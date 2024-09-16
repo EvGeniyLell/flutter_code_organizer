@@ -9,7 +9,7 @@ import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspe
 import 'package:meta/meta.dart';
 
 class HeadersInspectorModule extends CommonModule {
-  static const yamlConfigName = 'flutter_headers_inspector';
+  static const yamlConfigName = 'headers_inspector';
 
   HeadersInspectorModule({required super.remoteArguments});
 
@@ -37,6 +37,21 @@ class HeadersInspectorModule extends CommonModule {
     name: 'forbid_package_exports',
     defaultValue: true,
   );
+  final forbidPackageExportsEnabled = RemoteConfigFlag(
+    name: 'enabled',
+    defaultValue: false,
+  );
+  final forbidPackageExportsIgnoreFiles = RemoteConfigMultiOption(
+    name: 'ignore_files',
+    defaultValue: [],
+  );
+  late final forbidPackageExports2 = RemoteConfigMap(
+    name: 'forbid_package_exports',
+    items: [
+      forbidPackageExportsEnabled,
+      forbidPackageExportsIgnoreFiles,
+    ],
+  );
   final forbidOtherFeaturesRelativeExports = RemoteConfigFlag(
     name: 'forbid_other_features_relative_exports',
     defaultValue: true,
@@ -58,6 +73,7 @@ class HeadersInspectorModule extends CommonModule {
       forbidRelativeImports,
       forbidPackageExports,
       forbidOtherFeaturesRelativeExports,
+      forbidPackageExports2,
       help,
     ].initWith(
       yamlConfigName: yamlConfigName,
@@ -134,23 +150,37 @@ class HeadersInspectorModule extends CommonModule {
   void _printHelp() {
     Printer()
       ..h1('Help')
-      ..b1('Welcome to the localizations inspector')
-      ..b1('the tool allow you keep your localizations in order')
-      ..d1('')
+      // ..b1('Welcome to the localizations inspector')
+      // ..b1('the tool allow you keep your localizations in order')
+      // ..d1('')
       ..b1('Options:')
+      // ..remoteConfig(
+      //   help,
+      //   description: 'show this help message',
+      // )
+      // ..b1('')
+      // ..remoteConfig(
+      //   allowedDirectories,
+      //   description: 'directories to search for files',
+      // )
+      // ..remoteConfig(
+      //   allowedExtensions,
+      //   description: 'extensions to search for files',
+      // )
       ..remoteConfig(
-        help,
-        description: 'show this help message',
-      )
-      ..b1('')
-      ..remoteConfig(
-        allowedDirectories,
-        description: 'directories to search for files',
+        forbidPackageExports2,
+        description: 'test',
       )
       ..remoteConfig(
-        allowedExtensions,
-        description: 'extensions to search for files',
+        forbidPackageExportsEnabled,
+        description: 'enable',
       )
+      ..remoteConfig(
+        forbidPackageExportsIgnoreFiles,
+        description: 'ignore files',
+      )
+
+
       ..d1('')
       ..b1('  yaml config name: $yamlConfigName')
       ..f1('');

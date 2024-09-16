@@ -24,7 +24,7 @@ extension YamlMapExtension on YamlMap {
     if (value == null) {
       return null;
     }
-    return _decodeScalar<T>(this[value]);
+    return _decodeScalar<T>(value);
   }
 
   List<T>? _decodeList<T extends Object>(dynamic value) {
@@ -61,11 +61,8 @@ extension YamlMapExtension on YamlMap {
 
   bool _decodeFlag(dynamic value) {
     if (value != null) {
-      if (value is YamlMap) {
-        final result = value['enabled'];
-        if (result != null && result is bool) {
-          return result;
-        }
+      if (value is bool) {
+        return value;
       }
     }
     return false;

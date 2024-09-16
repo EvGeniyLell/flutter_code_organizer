@@ -199,8 +199,18 @@ extension ActionItemExtension on Item {
   /// Example:
   ///   export 'package:app/src/feature/sub_feature/file.dart';
   HeaderInspectorException? forbiddenPackageExports() {
+    final r =  findExceptionByCondition(
+      Condition.pattern("^export 'package:$projectName/src"),
+      HeaderInspectorExceptionType.packageExports,
+    );
+    if(r != null) {
+      print('###');
+      print(r);
+      print(features.join('/'));
+    }
+
     return findExceptionByCondition(
-      Condition.pattern("^export '(?!package:$projectName/src):"),
+      Condition.pattern("^export 'package:$projectName/src"),
       HeaderInspectorExceptionType.packageExports,
     );
   }

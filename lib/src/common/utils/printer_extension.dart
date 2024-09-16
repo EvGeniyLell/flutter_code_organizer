@@ -11,9 +11,11 @@ extension PrinterCommonExtension on Printer {
         ? '--${config.name}, -${config.abbr}'
         : '--${config.name}';
 
+
     this
-      ..b1('  $name: $description')
-      ..b1('      by defaults uses "${config.defaultValue}"');
+      ..b1('  ${colorizeInfo(name)}: $description')
+      ..b1('      by defaults uses ${colorizeInfo('${config.defaultValue}')}')
+      ..b1('      current value is ${colorizeInfo('${config.value}')}');
   }
 }
 

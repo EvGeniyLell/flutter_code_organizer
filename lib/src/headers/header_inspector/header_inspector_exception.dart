@@ -10,6 +10,14 @@ class HeaderInspectorException extends CommonException {
   });
 
   final HeaderInspectorExceptionType type;
+
+  @override
+  String toString() {
+    return '$HeaderInspectorException{'
+        'type:${type.name}, source: $source, '
+        'link: ${asLink()}}';
+  }
+
 }
 
 enum HeaderInspectorExceptionType {

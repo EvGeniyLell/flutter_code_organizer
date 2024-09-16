@@ -30,13 +30,11 @@ abstract class CommonException {
   int get hashCode =>
       file.path.hashCode ^ source.hashCode ^ line.hashCode ^ row.hashCode;
 
-  String asLink({String? base}) {
-    final path = file.path;
-    final relativePath = base != null ? path.replaceFirst(base, '') : path;
+  String asLink() {
     final row = this.row;
     return row != null
-        ? '$relativePath:${line + 1}:$row'
-        : '$relativePath:${line + 1}';
+        ? '${file.path}:${line + 1}:$row'
+        : '${file.path}:${line + 1}';
   }
 
   @override

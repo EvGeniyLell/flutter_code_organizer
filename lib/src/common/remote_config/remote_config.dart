@@ -139,6 +139,38 @@ class RemoteConfigMultiOption extends RemoteConfig<List<String>> {
   }
 }
 
+class RemoteConfigMap extends RemoteConfig<Object> {
+  RemoteConfigMap({
+    required super.name,
+    required this.items,
+  }) : super(abbr: null, defaultValue: const Object());
+
+  List<RemoteConfig> items;
+
+  // @override
+  // Object get defaultValue => [];
+
+  @override
+  Object? readYamlValue(YamlMap? yaml) {
+    final map =  yaml?[name];
+    print('map: $map (${map.runtimeType})');
+    if (map != null && map is YamlMap) {
+      for (final item in items) {
+        item.init(map, ArgumentsMap());
+        print('item: ${item.name} value:${item.value} (${item.defaultValue}) ${item.source}');
+      }
+    }
+    return map;
+  }
+
+  @override
+  List<String>? readArgumentValue(ArgumentsMap arguments) {
+    final value = arguments[name];
+    print('### value: $value');
+    return null;
+  }
+}
+
 extension ListRemoteConfigExtension on List<RemoteConfig> {
   void initWith({
     required String yamlConfigName,
@@ -153,7 +185,8 @@ extension ListRemoteConfigExtension on List<RemoteConfig> {
         final yamlRoot = loadYaml(yamlFile.readAsStringSync()) as YamlMap;
         final projectName = yamlRoot['name'].toString();
         projectNameCallback?.call(projectName);
-        return yamlRoot[yamlConfigName] as YamlMap;
+        final yamlOrganiser = yamlRoot['flutter_code_organizer'] as YamlMap;
+        return yamlOrganiser[yamlConfigName] as YamlMap;
       } on Object catch (_) {
         return null;
       }
