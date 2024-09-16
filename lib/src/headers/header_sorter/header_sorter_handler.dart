@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -64,22 +65,30 @@ class HeaderSorterHandler {
         0;
   }
 
-  bool save() {
+  @visibleForTesting
+  List<String> buildNewCode({
+    required bool spaceDartFlutter,
+    required bool spaceFlutterPackage,
+    required bool spacePackageProject,
+    required bool spaceProjectRelative,
+  }) {
     final topCode = code.sublist(0, firstRemoveIndex);
     final bottomCode = code.sublist(firstRemoveIndex);
     final newCode = [
       ...topCode,
       '',
       ...imports.sorted(
-        spaceDartFlutter: true,
-        spaceFlutterPackage: true,
-        spacePackageProject: true,
+        spaceDartFlutter: spaceDartFlutter,
+        spaceFlutterPackage: spaceFlutterPackage,
+        spacePackageProject: spacePackageProject,
+        spaceProjectRelative: spaceProjectRelative,
       ),
       '',
       ...exports.sorted(
-        spaceDartFlutter: true,
-        spaceFlutterPackage: true,
-        spacePackageProject: true,
+        spaceDartFlutter: spaceDartFlutter,
+        spaceFlutterPackage: spaceFlutterPackage,
+        spacePackageProject: spacePackageProject,
+        spaceProjectRelative: spaceProjectRelative,
       ),
       '',
       ...parts.sorted(),
@@ -102,11 +111,80 @@ class HeaderSorterHandler {
       return false;
     });
 
-    if (newCode.length == originalCode.length && newCode == originalCode) {
-      return false;
+    return newCode;
+  }
+
+  bool save({
+    required bool spaceDartFlutter,
+    required bool spaceFlutterPackage,
+    required bool spacePackageProject,
+    required bool spaceProjectRelative,
+  }) {
+    final newCode = buildNewCode(
+      spaceDartFlutter: spaceDartFlutter,
+      spaceFlutterPackage: spaceFlutterPackage,
+      spacePackageProject: spacePackageProject,
+      spaceProjectRelative: spaceProjectRelative,
+    );
+
+    //print('### newCode: ${newCode.length} (${originalCode.length})');
+    final buffer = newCode.join('\n');
+    final originalBuffer = [...originalCode, ''].join('\n');
+    int bufIndex = 0;
+    int? difI;
+    String? getC(String s, int index) {
+      try {
+        return s[index];
+      } on Object {
+        return null;
+      }
     }
 
-    final buffer = newCode.join('\n');
+    void printSample(String l, String r, int index) {
+      if(index == -1) {
+        return;
+      }
+      const shift = 5;
+      final iStart = max(index - shift, 0);
+      print('L:----------------\n '
+          '${l.substring(iStart, min(index + shift, l.length))}\n'
+          '--------------------:L');
+      print('R:----------------\n '
+          '${r.substring(iStart, min(index + shift, r.length))}\n'
+          '--------------------:R');
+      for (int i = iStart; i < index + shift; i++) {
+        final lC = getC(l, i);
+        final rC = getC(r, i);
+        if (lC == null && rC == null) {
+          break;
+        }
+        final lR = lC != null ? '${utf8.encode(lC)}' : '[null]';
+        final rR = rC != null ? '${utf8.encode(rC)}' : '[null]';
+        print('${lR.padLeft(9)} ${rR.padLeft(9)}');
+      }
+    }
+
+    while (difI == null) {
+      final nB = getC(buffer, bufIndex);
+      final oB = getC(originalBuffer, bufIndex);
+      if (nB == null && oB == null) {
+        difI = -1;
+        break;
+      }
+      if (nB == null || oB == null) {
+        difI = bufIndex;
+        break;
+      }
+      bufIndex += 1;
+    }
+
+    print('file: ${file.path}');
+    print('difI: $difI in (${buffer.length}:${originalBuffer.length})');
+    printSample(buffer, originalBuffer, difI);
+
+    if (buffer == originalBuffer) {
+      return false;
+    }
 
     file.writeAsStringSync(buffer);
 

@@ -14,7 +14,7 @@ class HeadersSorterModule extends CommonModule {
 
   final allowedDirectories = RemoteConfigMultiOption(
     name: 'allowed_directories',
-    defaultValue: ['^lib/src/.*', '^plugins/.*'],
+    defaultValue: ['^lib/src/.*'],
   );
   final allowedExtensions = RemoteConfigMultiOption(
     name: 'allowed_extensions',
@@ -65,7 +65,12 @@ class HeadersSorterModule extends CommonModule {
         final isSaved = HeaderSorterHandler(
           file: file,
           projectName: projectName,
-        ).save();
+        ).save(
+          spaceDartFlutter: true,
+          spaceFlutterPackage: true,
+          spacePackageProject: true,
+          spaceProjectRelative: true,
+        );
         if (isSaved) {
           saved.add(file);
         }
@@ -78,8 +83,8 @@ class HeadersSorterModule extends CommonModule {
     });
 
     final printer = Printer()
-      ..h1('Headers Sorter')
-      ..savedFiles(result.data.saved, currentPath: currentPath);
+      ..h1('Headers Sorter');
+      //..savedFiles(result.data.saved, currentPath: currentPath);
 
     final errorCount = printer.colorizeError(
       '${result.data.saved.length} errors',

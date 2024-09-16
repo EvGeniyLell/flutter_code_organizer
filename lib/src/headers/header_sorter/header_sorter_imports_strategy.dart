@@ -11,47 +11,31 @@ class HeaderSorterImportsStrategy {
       firstRemoveIndex ??= index;
     }
 
-    return HeaderSorterImportsStrategy._(
-      dartImports: getDartImports(
-        lines,
-        onRemove: onRemove,
-      ),
-      flutterImports: getFlutterImports(
-        lines,
-        onRemove: onRemove,
-      ),
-      packageImports: getPackageImports(
-        lines,
-        projectName: projectName,
-        onRemove: onRemove,
-      ),
-      projectImports: getProjectImports(
-        lines,
-        projectName: projectName,
-        onRemove: onRemove,
-      ),
-      relativeImports: getRelativeImports(
-        lines,
-        onRemove: onRemove,
-      ),
+    return HeaderSorterImportsStrategy.private(
+      dart: getDartImports(lines, onRemove: onRemove),
+      flutter: getFlutter(lines, onRemove: onRemove),
+      package: getPackage(lines, projectName: projectName, onRemove: onRemove),
+      project: getProject(lines, projectName: projectName, onRemove: onRemove),
+      relative: getRelative(lines, onRemove: onRemove),
       firstRemoveIndex: firstRemoveIndex,
     );
   }
 
-  HeaderSorterImportsStrategy._({
-    required this.dartImports,
-    required this.flutterImports,
-    required this.packageImports,
-    required this.projectImports,
+  @visibleForTesting
+  HeaderSorterImportsStrategy.private({
+    required this.dart,
+    required this.flutter,
+    required this.package,
+    required this.project,
+    required this.relative,
     required this.firstRemoveIndex,
-    required this.relativeImports,
   });
 
-  final List<String> dartImports;
-  final List<String> flutterImports;
-  final List<String> packageImports;
-  final List<String> projectImports;
-  final List<String> relativeImports;
+  final List<String> dart;
+  final List<String> flutter;
+  final List<String> package;
+  final List<String> project;
+  final List<String> relative;
 
   final int? firstRemoveIndex;
 
@@ -67,7 +51,7 @@ class HeaderSorterImportsStrategy {
       );
 
   @visibleForTesting
-  static List<String> getFlutterImports(
+  static List<String> getFlutter(
     List<String> lines, {
     required void Function(int index, String line) onRemove,
   }) =>
@@ -78,7 +62,7 @@ class HeaderSorterImportsStrategy {
       );
 
   @visibleForTesting
-  static List<String> getPackageImports(
+  static List<String> getPackage(
     List<String> lines, {
     required String projectName,
     required void Function(int index, String line) onRemove,
@@ -90,7 +74,7 @@ class HeaderSorterImportsStrategy {
       );
 
   @visibleForTesting
-  static List<String> getProjectImports(
+  static List<String> getProject(
     List<String> lines, {
     required String projectName,
     required void Function(int index, String line) onRemove,
@@ -102,10 +86,10 @@ class HeaderSorterImportsStrategy {
       );
 
   @visibleForTesting
-  static List<String> getRelativeImports(
-      List<String> lines, {
-        required void Function(int index, String line) onRemove,
-      }) =>
+  static List<String> getRelative(
+    List<String> lines, {
+    required void Function(int index, String line) onRemove,
+  }) =>
       removeLines(
         lines,
         pattern: "^import '.*;\$",
@@ -116,15 +100,18 @@ class HeaderSorterImportsStrategy {
     required bool spaceDartFlutter,
     required bool spaceFlutterPackage,
     required bool spacePackageProject,
+    required bool spaceProjectRelative,
   }) {
     return [
-      ...dartImports,
+      ...dart,
       if (spaceDartFlutter) ...[''],
-      ...flutterImports,
-      if (spaceDartFlutter) ...[''],
-      ...packageImports,
-      if (spaceDartFlutter) ...[''],
-      ...projectImports,
+      ...flutter,
+      if (spaceFlutterPackage) ...[''],
+      ...package,
+      if (spacePackageProject) ...[''],
+      ...project,
+      if (spaceProjectRelative) ...[''],
+      ...relative,
     ];
   }
 }

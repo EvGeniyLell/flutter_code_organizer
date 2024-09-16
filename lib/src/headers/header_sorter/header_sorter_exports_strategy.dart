@@ -11,36 +11,35 @@ class HeaderSorterExportsStrategy {
       firstRemoveIndex ??= index;
     }
 
-    return HeaderSorterExportsStrategy._(
-      dartExports: _dartExports(lines, onRemove: onRemove),
-      flutterExports: _flutterExports(lines, onRemove: onRemove),
-      packageExports:
-          _packageExports(lines, projectName: projectName, onRemove: onRemove),
-      projectExports:
-          _projectExports(lines, projectName: projectName, onRemove: onRemove),
-      relativeExports: getRelative(lines, onRemove: onRemove),
+    return HeaderSorterExportsStrategy.private(
+      dart: getDart(lines, onRemove: onRemove),
+      flutter: getFlutter(lines, onRemove: onRemove),
+      package: getPackage(lines, projectName: projectName, onRemove: onRemove),
+      project: getProject(lines, projectName: projectName, onRemove: onRemove),
+      relative: getRelative(lines, onRemove: onRemove),
       firstRemoveIndex: firstRemoveIndex,
     );
   }
 
-  HeaderSorterExportsStrategy._({
-    required this.dartExports,
-    required this.flutterExports,
-    required this.packageExports,
-    required this.projectExports,
+  @visibleForTesting
+  HeaderSorterExportsStrategy.private({
+    required this.dart,
+    required this.flutter,
+    required this.package,
+    required this.project,
+    required this.relative,
     required this.firstRemoveIndex,
-    required this.relativeExports,
   });
 
-  final List<String> dartExports;
-  final List<String> flutterExports;
-  final List<String> packageExports;
-  final List<String> projectExports;
-  final List<String> relativeExports;
+  final List<String> dart;
+  final List<String> flutter;
+  final List<String> package;
+  final List<String> project;
+  final List<String> relative;
 
   final int? firstRemoveIndex;
 
-  static List<String> _dartExports(
+  static List<String> getDart(
     List<String> lines, {
     required void Function(int index, String line) onRemove,
   }) =>
@@ -50,7 +49,7 @@ class HeaderSorterExportsStrategy {
         onRemove: onRemove,
       );
 
-  static List<String> _flutterExports(
+  static List<String> getFlutter(
     List<String> lines, {
     required void Function(int index, String line) onRemove,
   }) =>
@@ -60,7 +59,8 @@ class HeaderSorterExportsStrategy {
         onRemove: onRemove,
       );
 
-  static List<String> _packageExports(
+  @visibleForTesting
+  static List<String> getPackage(
     List<String> lines, {
     required String projectName,
     required void Function(int index, String line) onRemove,
@@ -71,7 +71,8 @@ class HeaderSorterExportsStrategy {
         onRemove: onRemove,
       );
 
-  static List<String> _projectExports(
+  @visibleForTesting
+  static List<String> getProject(
     List<String> lines, {
     required String projectName,
     required void Function(int index, String line) onRemove,
@@ -84,29 +85,31 @@ class HeaderSorterExportsStrategy {
 
   @visibleForTesting
   static List<String> getRelative(
-      List<String> lines, {
-        required void Function(int index, String line) onRemove,
-      }) =>
+    List<String> lines, {
+    required void Function(int index, String line) onRemove,
+  }) =>
       removeLines(
         lines,
         pattern: "^export '.*;\$",
         onRemove: onRemove,
       );
 
-
   List<String> sorted({
     required bool spaceDartFlutter,
     required bool spaceFlutterPackage,
     required bool spacePackageProject,
+    required bool spaceProjectRelative,
   }) {
     return [
-      ...dartExports,
+      ...dart,
       if (spaceDartFlutter) ...[''],
-      ...flutterExports,
-      if (spaceDartFlutter) ...[''],
-      ...packageExports,
-      if (spaceDartFlutter) ...[''],
-      ...projectExports,
+      ...flutter,
+      if (spaceFlutterPackage) ...[''],
+      ...package,
+      if (spacePackageProject) ...[''],
+      ...project,
+      if (spaceProjectRelative) ...[''],
+      ...relative,
     ];
   }
 }

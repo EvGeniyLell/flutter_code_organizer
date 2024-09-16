@@ -1,25 +1,15 @@
 // ignore_for_file: unnecessary_raw_strings
-class TestSource {
-  const TestSource({
-    required this.description,
-    required this.source,
-    required this.result,
-    required this.imports,
-    required this.exports,
-    required this.parts,
-  });
-
-  final String description;
-  final String source;
-  final String result;
-  final String imports;
-  final String exports;
-  final String parts;
-}
+import 'test_source.dart';
 
 const sourceA1 = TestSource(
-  description: 'first test',
+  projectName: 'fx',
+  description: 'A1: all imports, exports, parts with spaces',
   source: r'''
+library flutter_code_inspector;
+
+/// TestSampleData.
+/// Description of the sample data.
+  
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'dart:io';
@@ -75,13 +65,44 @@ class Account with _$Account implements HasToJson {
 
 ''',
   result: r'''
+library flutter_code_inspector;
+
+/// TestSampleData.
+/// Description of the sample data.
+  
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:fx/src/account/business_objects/account_subscription_type.dart';
 import 'package:fx/src/account/business_objects/white_label.dart';
+import 'package:fx/src/common/common.dart'
+    hide
+        CoordinateMapperExtensions,
+        CoordinateDtoMapperExtensions,
+        CoordinateMapper,
+        CoordinateDtoMapper;
 import 'package:fx/src/common/common.dart';
 import 'package:fx/src/dictionary/dictionary.dart';
 import 'package:fx/src/notifications/notifications.dart';
+
+import '../notifications/notifications.dart';
+import 'notifications/notifications.dart';
+
+export 'dart:io';
+
+export 'package:flutter/src/splash_screen/ui/splash_page_builder.dart';
+
+export 'package:mac_os/src/splash_screen/ui/splash_page_builder.dart';
+
+export 'package:fx/src/splash_screen/ui/splash_page_builder.dart';
+
+export '../splash_screen/ui/splash_page_builder.dart';
+export 'cubits/splash_cubit.dart';
+export 'ui/splash_page_builder.dart';
 
 part 'account.freezed.dart';
 part 'account.g.dart';
@@ -129,6 +150,9 @@ import 'package:fx/src/common/common.dart'
 import 'package:fx/src/common/common.dart';
 import 'package:fx/src/dictionary/dictionary.dart';
 import 'package:fx/src/notifications/notifications.dart';
+
+import '../notifications/notifications.dart';
+import 'notifications/notifications.dart';
 ''',
   exports: r'''
 export 'dart:io';
@@ -138,10 +162,13 @@ export 'package:flutter/src/splash_screen/ui/splash_page_builder.dart';
 export 'package:mac_os/src/splash_screen/ui/splash_page_builder.dart';
 
 export 'package:fx/src/splash_screen/ui/splash_page_builder.dart';
+
+export '../splash_screen/ui/splash_page_builder.dart';
+export 'cubits/splash_cubit.dart';
+export 'ui/splash_page_builder.dart';
 ''',
   parts: r'''
 part 'account.freezed.dart';
 part 'account.g.dart';
 ''',
-
 );

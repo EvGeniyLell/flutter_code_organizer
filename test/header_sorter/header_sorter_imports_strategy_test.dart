@@ -7,21 +7,12 @@ import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_p
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 import 'package:test/test.dart';
 
-import 'source.dart';
+import 'test_source/test_source.dart';
 
 void main() {
-  const projectName = 'fx';
   final sourceMap = {
     File('test/source_a1.dart'): sourceA1,
   };
-
-  void printList(List<String> list, {required String title}) {
-    print('-- $title -----------------------------');
-    for (final line in list) {
-      print(line);
-    }
-    print('^^ $title ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
-  }
 
   HeaderSorterHandler createHandler(
     TestSource source, {
@@ -57,7 +48,7 @@ void main() {
             final handler = createHandler(
               source,
               file: file,
-              projectName: projectName,
+              projectName: source.projectName,
             );
 
             test('imports', () {
@@ -66,6 +57,7 @@ void main() {
                 spaceDartFlutter: true,
                 spaceFlutterPackage: true,
                 spacePackageProject: true,
+                spaceProjectRelative: true,
               )..add('');
 
               expect(result.join('\n'), source.imports);
@@ -77,6 +69,7 @@ void main() {
                 spaceDartFlutter: true,
                 spaceFlutterPackage: true,
                 spacePackageProject: true,
+                spaceProjectRelative: true,
               )..add('');
 
               expect(result.join('\n'), source.exports);
@@ -89,49 +82,19 @@ void main() {
               expect(result.join('\n'), source.parts);
             });
 
-            // final strategy = handler.imports;
-            // final result = strategy.sorted(
-            //   spaceDartFlutter: true,
-            //   spaceFlutterPackage: true,
-            //   spacePackageProject: true,
-            // );
-            //
-            // printList(strategy.dartImports, title: 'dartImports');
-            // printList(strategy.flutterImports, title: 'flutterImports');
-            // printList(strategy.packageImports, title: 'packageImports');
-            // printList(strategy.projectImports, title: 'projectImports');
-            // printList(result, title: 'result');
+            test('result', () {
+              final newCode = handler.buildNewCode(
+                spaceDartFlutter: true,
+                spaceFlutterPackage: true,
+                spacePackageProject: true,
+                spaceProjectRelative: true,
+              )..add('');
 
-            // expect(output.length, 1);
-            // expect(output.firstOrNull, isNotNull);
-            // expect(output.first?.unColorize().length, 120);
+              expect(newCode.join('\n'), source.result);
+            });
           },
         );
       }
     },
   );
-
-  // test('Printer prints ', () {
-  //   final handler = createHandler(
-  //     sourceA1,
-  //     file: File('test/source_a1.dart'),
-  //     projectName: 'fx',
-  //   );
-  //   final strategy = handler.imports;
-  //   final result = strategy.sorted(
-  //     spaceDartFlutter: true,
-  //     spaceFlutterPackage: true,
-  //     spacePackageProject: true,
-  //   );
-  //
-  //   printList(strategy.dartImports, title: 'dartImports');
-  //   printList(strategy.flutterImports, title: 'flutterImports');
-  //   printList(strategy.packageImports, title: 'packageImports');
-  //   printList(strategy.projectImports, title: 'projectImports');
-  //   printList(result, title: 'result');
-  //
-  //   // expect(output.length, 1);
-  //   // expect(output.firstOrNull, isNotNull);
-  //   // expect(output.first?.unColorize().length, 120);
-  // });
 }
