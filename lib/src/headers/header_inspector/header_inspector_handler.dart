@@ -36,7 +36,6 @@ class HeaderInspectorHandler {
   final String projectDir;
   final String projectName;
 
-
   List<HeaderInspectorException> findAllExceptions({
     required RemoteInspectorForbidConfig forbidThemselfPackageImports,
     required RemoteInspectorForbidConfig forbidOtherFeaturesPackageImports,

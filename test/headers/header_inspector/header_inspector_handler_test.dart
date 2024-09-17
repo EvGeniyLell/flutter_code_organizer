@@ -44,21 +44,15 @@ void main() {
           //print(exceptions);
 
           for (final type in HeaderInspectorExceptionType.values) {
-            print('-- ${type.name}');
+            // print('-- ${type.name}');
             final subExceptions = exceptions.where((e) {
               return e.type == type;
             });
             for (final exception in subExceptions) {
-              print(exception);
+              // print(exception);
+              expect(exception, isA<HeaderInspectorException>());
             }
           }
-
-          // print('-- All');
-          // for (final exception in exceptions) {
-          //   print(exception);
-          // }
-
-          // expect(result.join('\n'), source.imports);
         });
       });
     }

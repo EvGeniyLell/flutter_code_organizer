@@ -172,8 +172,8 @@ class RemoteConfigMap extends RemoteConfig<void> {
   @override
   List<String>? readArgumentValue(ArgumentsMap arguments) {
     // TODO(evg): implement readArgumentValue
-    final value = arguments[name];
-    print('### value: $value');
+    // final value = arguments[name];
+    // print('### value: $value');
     return null;
   }
 

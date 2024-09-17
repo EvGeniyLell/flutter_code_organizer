@@ -17,7 +17,6 @@ class HeaderInspectorException extends CommonException {
         'type:${type.name}, source: $source, '
         'link: ${asLink()}}';
   }
-
 }
 
 enum HeaderInspectorExceptionType {

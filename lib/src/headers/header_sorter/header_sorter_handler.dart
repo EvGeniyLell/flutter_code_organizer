@@ -8,7 +8,7 @@ import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_p
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 import 'package:meta/meta.dart';
 
-import 'header_sorter_order_item_type.dart';
+import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_order_item_type.dart';
 
 class HeaderSorterHandler {
   @visibleForTesting

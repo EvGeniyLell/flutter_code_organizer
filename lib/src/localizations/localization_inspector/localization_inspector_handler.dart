@@ -26,7 +26,7 @@ class LocalizationInspectorHandler {
         return Item(
           key: key,
           value: itemMath?.group(2),
-          lineIndex: lineNumber-1,
+          lineIndex: lineNumber - 1,
         );
       }
     });

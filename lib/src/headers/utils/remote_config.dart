@@ -39,35 +39,3 @@ class RemoteInspectorForbidConfig extends RemoteConfigMap {
   final RemoteConfigFlag enabled;
   final RemoteConfigMultiOption ignoreFiles;
 }
-
-// class RemoteConfigEnumOption<T extends Enum> extends RemoteConfigMultiOption {
-//   factory RemoteConfigEnumOption({
-//     required String name,
-//     required String description,
-//     required List<T> defaultValue,
-//     required List<T> allEnumValues,
-//   }) {
-//     return RemoteConfigEnumOption.private(
-//       name: name,
-//       description: description,
-//       defaultValue: defaultValue.map((e) => e.name).toList(),
-//       allEnumValues: allEnumValues,
-//     );
-//   }
-//
-//   @visibleForTesting
-//   RemoteConfigEnumOption.private({
-//     required super.name,
-//     required super.description,
-//     required super.defaultValue,
-//     required this.allEnumValues,
-//   });
-//
-//   final List<T> allEnumValues;
-//
-//   List<T> get enumValues {
-//     return defaultValue
-//         .map((e) => allEnumValues.firstWhere((element) => element.name == e))
-//         .toList();
-//   }
-// }
