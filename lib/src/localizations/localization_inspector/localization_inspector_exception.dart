@@ -1,4 +1,4 @@
-import 'package:flutter_code_organizer/src/common/common_exception.dart';
+import 'package:flutter_code_organizer/src/common/common.dart';
 
 class LocalizationInspectorException extends CommonException {
   const LocalizationInspectorException({

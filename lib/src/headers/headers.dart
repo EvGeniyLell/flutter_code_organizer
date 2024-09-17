@@ -1,4 +1,4 @@
 library headers;
 
-export 'package:flutter_code_organizer/src/headers/headers_inspector.dart';
-export 'package:flutter_code_organizer/src/headers/headers_sorter.dart';
+export 'headers_inspector.dart';
+export 'headers_sorter.dart';

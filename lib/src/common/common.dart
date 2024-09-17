@@ -1,5 +1,6 @@
 library common;
 
+export 'common_exception.dart';
 export 'printer/printer.dart';
 export 'remote_config/remote_config.dart';
 export 'utils/condition.dart';
