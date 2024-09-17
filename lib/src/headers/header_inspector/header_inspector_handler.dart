@@ -1,25 +1,48 @@
 import 'dart:io';
 
 import 'package:meta/meta.dart';
+import 'package:collection/collection.dart';
 
 import 'package:flutter_code_organizer/src/common/common.dart';
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
 import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 
 class HeaderInspectorHandler {
+  /// Can be replaced for testing
   @visibleForTesting
   static List<String> Function(File file) reader =
       (File file) => file.readAsLinesSync();
+
+  /// Can be replaced for testing
+  @visibleForTesting
+  static Item Function({
+    required File file,
+    required String projectName,
+    required String projectDir,
+    required String source,
+    required int index,
+    required List<String> features,
+  }) itemBuilder = Item.private;
 
   factory HeaderInspectorHandler({
     required File file,
     required String projectDir,
     required String projectName,
   }) {
-    final lines = reader(file);
+    final features = file.getProjectSRCFeaturesByPath(projectDir);
+    final items = reader(file).mapIndexed((index, line) {
+      return itemBuilder(
+        file: file,
+        projectName: projectName,
+        projectDir: projectDir,
+        source: line,
+        index: index,
+        features: features,
+      );
+    });
     return HeaderInspectorHandler.private(
       file: file,
-      lines: lines,
+      items: items,
       projectDir: projectDir,
       projectName: projectName,
     );
@@ -28,13 +51,13 @@ class HeaderInspectorHandler {
   @visibleForTesting
   HeaderInspectorHandler.private({
     required this.file,
-    required this.lines,
+    required this.items,
     required this.projectDir,
     required this.projectName,
   });
 
   final File file;
-  final List<String> lines;
+  final Iterable<Item> items;
   final String projectDir;
   final String projectName;
 
@@ -47,18 +70,8 @@ class HeaderInspectorHandler {
   }) {
     final List<HeaderInspectorException> results = [];
 
-    int lineIndex = 0;
-    for (final line in lines) {
-      lineIndex += 1;
-
-      final exception = Item(
-        file: file,
-        projectName: projectName,
-        projectDir: projectDir,
-        source: line,
-        index: lineIndex - 1,
-        features: file.getProjectSRCFeaturesByPath(projectDir),
-      ).findException(
+    for (final item in items) {
+      final exception = item.findException(
         forbidThemselfPackageImports: forbidThemselfPackageImports,
         forbidOtherFeaturesPackageImports: forbidOtherFeaturesPackageImports,
         forbidRelativeImports: forbidRelativeImports,
@@ -77,7 +90,7 @@ class HeaderInspectorHandler {
 
 @visibleForTesting
 class Item {
-  Item({
+  Item.private({
     required this.file,
     required this.projectName,
     required this.projectDir,

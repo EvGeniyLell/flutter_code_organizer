@@ -1,8 +1,9 @@
 import 'dart:io';
 
+import 'package:test/test.dart';
+
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_handler.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_order_item_type.dart';
-import 'package:test/test.dart';
 
 import 'test_source_a1.dart';
 

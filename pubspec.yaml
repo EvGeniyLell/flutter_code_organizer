@@ -7,8 +7,10 @@ environment:
 
 dependencies:
   args: ^2.5.0
+  collection: ^1.19.0
   colorize: ^3.0.0
   meta: ^1.15.0
+  mocktail: any
   yaml: ^3.1.2
 
 dev_dependencies:
@@ -16,3 +18,7 @@ dev_dependencies:
   test: ^1.25.8
 
 flutter_code_organizer:
+  headers_sorter:
+    allowed_directories:
+      - ^lib/src/.*
+      - ^test/.*
