@@ -1,6 +1,8 @@
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 import 'package:meta/meta.dart';
 
+import 'header_sorter_order_item_type.dart';
+
 class HeaderSorterImportsStrategy {
   factory HeaderSorterImportsStrategy(
     List<String> lines, {
@@ -96,22 +98,4 @@ class HeaderSorterImportsStrategy {
         onRemove: onRemove,
       );
 
-  List<String> sorted({
-    required bool spaceDartFlutter,
-    required bool spaceFlutterPackage,
-    required bool spacePackageProject,
-    required bool spaceProjectRelative,
-  }) {
-    return [
-      ...dart,
-      if (spaceDartFlutter) ...[''],
-      ...flutter,
-      if (spaceFlutterPackage) ...[''],
-      ...package,
-      if (spacePackageProject) ...[''],
-      ...project,
-      if (spaceProjectRelative) ...[''],
-      ...relative,
-    ];
-  }
 }

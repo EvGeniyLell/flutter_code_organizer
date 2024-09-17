@@ -93,23 +93,4 @@ class HeaderSorterExportsStrategy {
         pattern: "^export '.*;\$",
         onRemove: onRemove,
       );
-
-  List<String> sorted({
-    required bool spaceDartFlutter,
-    required bool spaceFlutterPackage,
-    required bool spacePackageProject,
-    required bool spaceProjectRelative,
-  }) {
-    return [
-      ...dart,
-      if (spaceDartFlutter) ...[''],
-      ...flutter,
-      if (spaceFlutterPackage) ...[''],
-      ...package,
-      if (spacePackageProject) ...[''],
-      ...project,
-      if (spaceProjectRelative) ...[''],
-      ...relative,
-    ];
-  }
 }

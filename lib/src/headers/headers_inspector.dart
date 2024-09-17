@@ -6,6 +6,7 @@ import 'package:flutter_code_organizer/src/headers/utils/printer_extension.dart'
 
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_handler.dart';
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
+import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 import 'package:meta/meta.dart';
 
 class HeadersInspectorModule extends CommonModule {
@@ -16,50 +17,38 @@ class HeadersInspectorModule extends CommonModule {
   final allowedDirectories = RemoteConfigMultiOption(
     name: 'allowed_directories',
     defaultValue: ['^lib/src/.*'],
+    description: 'directories to search for files',
   );
   final allowedExtensions = RemoteConfigMultiOption(
     name: 'allowed_extensions',
     defaultValue: ['.dart'],
+    description: 'files extensions to search for files',
   );
-  final forbidThemselfPackageImports = RemoteConfigFlag(
+  final forbidThemselfPackageImports = RemoteInspectorForbidConfig(
     name: 'forbid_themself_package_imports',
-    defaultValue: false,
+    description: 'forbid package imports themself: settings',
   );
-  final forbidOtherFeaturesPackageImports = RemoteConfigFlag(
+  final forbidOtherFeaturesPackageImports = RemoteInspectorForbidConfig(
     name: 'forbid_other_features_package_imports',
-    defaultValue: true,
+    description: 'forbid package imports to other features: settings',
   );
-  final forbidRelativeImports = RemoteConfigFlag(
+  final forbidRelativeImports = RemoteInspectorForbidConfig(
     name: 'forbid_relative_imports',
-    defaultValue: true,
+    description: 'forbid relative imports: settings',
   );
-  final forbidPackageExports = RemoteConfigFlag(
+  final forbidPackageExports = RemoteInspectorForbidConfig(
     name: 'forbid_package_exports',
-    defaultValue: true,
+    description: 'forbid package exports: settings',
   );
-  final forbidPackageExportsEnabled = RemoteConfigFlag(
-    name: 'enabled',
-    defaultValue: false,
-  );
-  final forbidPackageExportsIgnoreFiles = RemoteConfigMultiOption(
-    name: 'ignore_files',
-    defaultValue: [],
-  );
-  late final forbidPackageExports2 = RemoteConfigMap(
-    name: 'forbid_package_exports',
-    items: [
-      forbidPackageExportsEnabled,
-      forbidPackageExportsIgnoreFiles,
-    ],
-  );
-  final forbidOtherFeaturesRelativeExports = RemoteConfigFlag(
+  final forbidOtherFeaturesRelativeExports = RemoteInspectorForbidConfig(
     name: 'forbid_other_features_relative_exports',
-    defaultValue: true,
+    description: 'forbid relative exports: settings',
   );
   final help = RemoteConfigFlag(
     name: 'help',
     abbr: 'h',
     defaultValue: false,
+    description: 'show this help message',
   );
   late final String projectName;
 
@@ -73,7 +62,6 @@ class HeadersInspectorModule extends CommonModule {
       forbidRelativeImports,
       forbidPackageExports,
       forbidOtherFeaturesRelativeExports,
-      forbidPackageExports2,
       help,
     ].initWith(
       yamlConfigName: yamlConfigName,
@@ -113,13 +101,13 @@ class HeadersInspectorModule extends CommonModule {
 
         exceptions.addAll(
           handler.findAllExceptions(
-            forbidThemselfPackageImports: forbidThemselfPackageImports.value,
+            forbidThemselfPackageImports: forbidThemselfPackageImports,
             forbidOtherFeaturesPackageImports:
-                forbidOtherFeaturesPackageImports.value,
-            forbidRelativeImports: forbidRelativeImports.value,
-            forbidPackageExports: forbidPackageExports.value,
+                forbidOtherFeaturesPackageImports,
+            forbidRelativeImports: forbidRelativeImports,
+            forbidPackageExports: forbidPackageExports,
             forbidOtherFeaturesRelativeExports:
-                forbidOtherFeaturesRelativeExports.value,
+                forbidOtherFeaturesRelativeExports,
           ),
         );
       }
@@ -150,37 +138,19 @@ class HeadersInspectorModule extends CommonModule {
   void _printHelp() {
     Printer()
       ..h1('Help')
-      // ..b1('Welcome to the localizations inspector')
-      // ..b1('the tool allow you keep your localizations in order')
-      // ..d1('')
+      ..b1('Welcome to the localizations inspector')
+      ..b1('the tool allow you keep your localizations in order')
+      ..d1('')
       ..b1('Options:')
-      // ..remoteConfig(
-      //   help,
-      //   description: 'show this help message',
-      // )
-      // ..b1('')
-      // ..remoteConfig(
-      //   allowedDirectories,
-      //   description: 'directories to search for files',
-      // )
-      // ..remoteConfig(
-      //   allowedExtensions,
-      //   description: 'extensions to search for files',
-      // )
-      ..remoteConfig(
-        forbidPackageExports2,
-        description: 'test',
-      )
-      ..remoteConfig(
-        forbidPackageExportsEnabled,
-        description: 'enable',
-      )
-      ..remoteConfig(
-        forbidPackageExportsIgnoreFiles,
-        description: 'ignore files',
-      )
-
-
+      ..remoteConfig(help)
+      ..b1('')
+      ..remoteConfig(allowedDirectories)
+      ..remoteConfig(allowedExtensions)
+      ..remoteConfig(forbidThemselfPackageImports)
+      ..remoteConfig(forbidOtherFeaturesPackageImports)
+      ..remoteConfig(forbidRelativeImports)
+      ..remoteConfig(forbidPackageExports)
+      ..remoteConfig(forbidOtherFeaturesRelativeExports)
       ..d1('')
       ..b1('  yaml config name: $yamlConfigName')
       ..f1('');

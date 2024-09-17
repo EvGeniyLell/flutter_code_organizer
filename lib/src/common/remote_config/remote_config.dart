@@ -1,5 +1,6 @@
 library remote_config;
 
+// ignore_for_file: always_put_required_named_parameters_first
 import 'dart:io';
 
 import 'package:flutter_code_organizer/src/common/remote_config/extensions/arguments_map_extension.dart';
@@ -11,15 +12,17 @@ enum RemoteConfigSource {
   defaultValue,
 }
 
-abstract class RemoteConfig<T extends Object> {
+abstract class RemoteConfig<T> {
   RemoteConfig({
     required this.name,
-    required this.defaultValue,
     this.abbr,
+    required this.description,
+    required this.defaultValue,
   });
 
   final String name;
   final String? abbr;
+  final String description;
   final T defaultValue;
 
   late final T value;
@@ -40,20 +43,25 @@ abstract class RemoteConfig<T extends Object> {
       return;
     }
 
-    value = defaultValue;
-    source = RemoteConfigSource.defaultValue;
+    setupDefaultValue();
   }
 
   T? readYamlValue(YamlMap? yaml);
 
   T? readArgumentValue(ArgumentsMap arguments);
+
+  void setupDefaultValue() {
+    this.value = defaultValue;
+    source = RemoteConfigSource.defaultValue;
+  }
 }
 
 class RemoteConfigFlag extends RemoteConfig<bool> {
   RemoteConfigFlag({
     required super.name,
-    required super.defaultValue,
     super.abbr,
+    required super.description,
+    required super.defaultValue,
   });
 
   @override
@@ -91,8 +99,9 @@ class RemoteConfigFlag extends RemoteConfig<bool> {
 class RemoteConfigOption extends RemoteConfig<String> {
   RemoteConfigOption({
     required super.name,
-    required super.defaultValue,
     super.abbr,
+    required super.description,
+    required super.defaultValue,
   });
 
   @override
@@ -113,8 +122,9 @@ class RemoteConfigOption extends RemoteConfig<String> {
 class RemoteConfigMultiOption extends RemoteConfig<List<String>> {
   RemoteConfigMultiOption({
     required super.name,
-    required super.defaultValue,
     super.abbr,
+    required super.description,
+    required super.defaultValue,
     this.separator = ',',
   });
 
@@ -139,25 +149,21 @@ class RemoteConfigMultiOption extends RemoteConfig<List<String>> {
   }
 }
 
-class RemoteConfigMap extends RemoteConfig<Object> {
+class RemoteConfigMap extends RemoteConfig<void> {
   RemoteConfigMap({
     required super.name,
+    required super.description,
     required this.items,
-  }) : super(abbr: null, defaultValue: const Object());
+  }) : super(abbr: null, defaultValue: null);
 
   List<RemoteConfig> items;
 
-  // @override
-  // Object get defaultValue => [];
-
   @override
   Object? readYamlValue(YamlMap? yaml) {
-    final map =  yaml?[name];
-    print('map: $map (${map.runtimeType})');
+    final map = yaml?[name];
     if (map != null && map is YamlMap) {
       for (final item in items) {
         item.init(map, ArgumentsMap());
-        print('item: ${item.name} value:${item.value} (${item.defaultValue}) ${item.source}');
       }
     }
     return map;
@@ -165,9 +171,18 @@ class RemoteConfigMap extends RemoteConfig<Object> {
 
   @override
   List<String>? readArgumentValue(ArgumentsMap arguments) {
+    // TODO(evg): implement readArgumentValue
     final value = arguments[name];
     print('### value: $value');
     return null;
+  }
+
+  @override
+  void setupDefaultValue() {
+    for (final item in items) {
+      item.init(null, ArgumentsMap());
+    }
+    super.setupDefaultValue();
   }
 }
 

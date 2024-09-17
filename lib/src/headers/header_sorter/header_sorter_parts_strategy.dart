@@ -27,8 +27,4 @@ class HeaderSorterPartsStrategy {
     required void Function(int index, String line) onRemove,
   }) =>
       removeLines(lines, pattern: "^part '.*;\$", onRemove: onRemove);
-
-  List<String> sorted() {
-    return [...parts];
-  }
 }

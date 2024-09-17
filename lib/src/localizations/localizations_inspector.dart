@@ -14,35 +14,43 @@ class LocalizationsInspectorModule extends CommonModule {
   final allowedDirectories = RemoteConfigMultiOption(
     name: 'allowed_directories',
     defaultValue: ['translation/.*'],
+    description: 'directories to search for files',
   );
   final allowedExtensions = RemoteConfigMultiOption(
     name: 'allowed_extensions',
     defaultValue: ['.arb'],
+    description: 'files extensions to search for files',
   );
   final localePattern = RemoteConfigOption(
     name: 'locale_pattern',
     defaultValue: r'.*/(\w+).arb',
+    description: 'pattern to extract locale from file path',
   );
   final findKeyDuplicates = RemoteConfigFlag(
-    name: 'find_key_duplicates',
+    name: 'find_key_duplicates_enabled',
     defaultValue: false,
+    description: 'find keys duplicates',
   );
   final findValueDuplicates = RemoteConfigFlag(
-    name: 'find_value_duplicates',
+    name: 'find_value_duplicates_enabled',
     defaultValue: true,
+    description: 'find values duplicates',
   );
   final findKeyAndValueDuplicates = RemoteConfigFlag(
-    name: 'find_key_and_value_duplicates',
+    name: 'find_key_and_value_duplicates_enabled',
     defaultValue: true,
+    description: 'find keys and values duplicates',
   );
   final findMissedKeys = RemoteConfigFlag(
-    name: 'find_missed_keys',
+    name: 'find_missed_keys_enabled',
     defaultValue: true,
+    description: 'find missed keys',
   );
   final help = RemoteConfigFlag(
     name: 'help',
     abbr: 'h',
     defaultValue: false,
+    description: 'show this help message',
   );
 
   @override
@@ -129,40 +137,16 @@ class LocalizationsInspectorModule extends CommonModule {
       ..b1('the tool allow you keep your localizations in order')
       ..d1('')
       ..b1('Options:')
-      ..remoteConfig(
-        help,
-        description: 'show this help message',
-      )
+      ..remoteConfig(help)
       ..b1('')
-      ..remoteConfig(
-        allowedDirectories,
-        description: 'directories to search for files',
-      )
-      ..remoteConfig(
-        allowedExtensions,
-        description: 'extensions to search for files',
-      )
-      ..remoteConfig(
-        localePattern,
-        description: 'pattern to extract locale from file path',
-      )
+      ..remoteConfig(allowedDirectories)
+      ..remoteConfig(allowedExtensions)
+      ..remoteConfig(localePattern)
       ..b1('')
-      ..remoteConfig(
-        findKeyDuplicates,
-        description: 'find keys duplicates',
-      )
-      ..remoteConfig(
-        findValueDuplicates,
-        description: 'find values duplicates',
-      )
-      ..remoteConfig(
-        findKeyAndValueDuplicates,
-        description: 'find keys and values duplicates',
-      )
-      ..remoteConfig(
-        findMissedKeys,
-        description: 'find missed keys',
-      )
+      ..remoteConfig(findKeyDuplicates)
+      ..remoteConfig(findValueDuplicates)
+      ..remoteConfig(findKeyAndValueDuplicates)
+      ..remoteConfig(findMissedKeys)
       ..d1('')
       ..b1('  yaml config name: $yamlConfigName')
       ..f1('');

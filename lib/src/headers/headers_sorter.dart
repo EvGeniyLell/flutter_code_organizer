@@ -7,6 +7,8 @@ import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_h
 import 'package:flutter_code_organizer/src/headers/utils/printer_extension.dart';
 import 'package:meta/meta.dart';
 
+import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_order_item_type.dart';
+
 class HeadersSorterModule extends CommonModule {
   static const yamlConfigName = 'headers_sorter';
 
@@ -15,15 +17,26 @@ class HeadersSorterModule extends CommonModule {
   final allowedDirectories = RemoteConfigMultiOption(
     name: 'allowed_directories',
     defaultValue: ['^lib/src/.*'],
+    description: 'directories to search for files',
   );
   final allowedExtensions = RemoteConfigMultiOption(
     name: 'allowed_extensions',
     defaultValue: ['.dart'],
+    description: 'files extensions to search for files',
   );
+  final sortOrder = RemoteConfigMultiOption(
+    name: 'sort_order',
+    defaultValue: [
+      ...HeaderSorterOrderItemTypeExtension.defaultOrder().map((e) => e.name),
+    ],
+    description: 'files extensions to search for files',
+  );
+
   final help = RemoteConfigFlag(
     name: 'help',
     abbr: 'h',
     defaultValue: false,
+    description: 'show this help message',
   );
   late final String projectName;
 
@@ -32,6 +45,7 @@ class HeadersSorterModule extends CommonModule {
     <RemoteConfig>[
       allowedDirectories,
       allowedExtensions,
+      sortOrder,
       help,
     ].initWith(
       yamlConfigName: yamlConfigName,
@@ -66,10 +80,9 @@ class HeadersSorterModule extends CommonModule {
           file: file,
           projectName: projectName,
         ).save(
-          spaceDartFlutter: true,
-          spaceFlutterPackage: true,
-          spacePackageProject: true,
-          spaceProjectRelative: true,
+          sortOrder: HeaderSorterOrderItemTypeExtension.enumListFromStrings(
+            sortOrder.value,
+          ),
         );
         if (isSaved) {
           saved.add(file);
@@ -106,24 +119,17 @@ class HeadersSorterModule extends CommonModule {
       ..b1('the tool allow you keep your localizations in order')
       ..d1('')
       ..b1('Options:')
-      ..b1('  --help, -h: show this help message')
+      ..remoteConfig(help)
       ..b1('')
-      ..b1('  --allowed_directories: directories to search for files')
-      ..b1('      by defaults uses "translation/.*"')
-      ..b1('  --allowed_extensions: extensions to search for files')
-      ..b1('      by defaults uses ".arb"')
-      ..b1('  --locale_pattern: pattern to extract locale from file path')
-      ..b1('      by defaults uses ".*/localeName.arb"')
+      ..remoteConfig(allowedDirectories)
+      ..remoteConfig(allowedExtensions)
+      ..remoteConfig(sortOrder)
+      ..b1('      possible values:')
+      ..b1('        - space')
+      ..b1('        - import_[dart, flutter, package, project, relative]')
+      ..b1('        - export_[dart, flutter, package, project, relative]')
+      ..b1('        - part')
       ..b1('')
-      ..b1('  --find_key_duplicates: find keys duplicates')
-      ..b1('      by defaults uses "true"')
-      ..b1('  --find_value_duplicates: find values duplicates')
-      ..b1('      by defaults uses "true"')
-      ..b1('  --find_key_and_value_duplicates: find keys and values duplicates')
-      ..b1('      by defaults uses "true"')
-      ..b1('  --find_missed_keys: find missed keys')
-      ..b1('      by defaults uses "true"')
-      ..d1('')
       ..b1('  yaml config name: $yamlConfigName')
       ..f1('');
   }

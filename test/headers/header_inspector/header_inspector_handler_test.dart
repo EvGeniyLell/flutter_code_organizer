@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:flutter_code_organizer/src/common/remote_config/extensions/arguments_map_extension.dart';
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_handler.dart';
+import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 import 'package:test/test.dart';
 
 import 'test_source_a1.dart';
@@ -10,6 +12,9 @@ void main() {
   final sourceMap = {
     File('test/lib/src/feature_a0/feature_a1/feature_a2.dart'): sourceA1,
   };
+  final remoteForbidConfig =
+      RemoteInspectorForbidConfig(name: 'test', description: 'test')
+        ..init(null, ArgumentsMap());
 
   setUp(() {});
 
@@ -29,11 +34,11 @@ void main() {
 
         test('AllExceptions', () {
           final exceptions = handler.findAllExceptions(
-            forbidThemselfPackageImports: true,
-            forbidOtherFeaturesPackageImports: true,
-            forbidRelativeImports: true,
-            forbidPackageExports: true,
-            forbidOtherFeaturesRelativeExports: true,
+            forbidThemselfPackageImports: remoteForbidConfig,
+            forbidOtherFeaturesPackageImports: remoteForbidConfig,
+            forbidRelativeImports: remoteForbidConfig,
+            forbidPackageExports: remoteForbidConfig,
+            forbidOtherFeaturesRelativeExports: remoteForbidConfig,
           );
 
           //print(exceptions);

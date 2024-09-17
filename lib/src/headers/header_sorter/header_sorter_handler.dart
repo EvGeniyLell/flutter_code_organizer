@@ -8,6 +8,8 @@ import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_p
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 import 'package:meta/meta.dart';
 
+import 'header_sorter_order_item_type.dart';
+
 class HeaderSorterHandler {
   @visibleForTesting
   static List<String> Function(File file) reader =
@@ -70,33 +72,51 @@ class HeaderSorterHandler {
   }
 
   @visibleForTesting
+  List<String> orderItems({
+    required List<HeaderSorterOrderItemType> sortOrder,
+  }) {
+    final result = <String>[];
+    for (final item in sortOrder) {
+      switch (item) {
+        case HeaderSorterOrderItemType.importDart:
+          result.addAll(imports.dart);
+        case HeaderSorterOrderItemType.importFlutter:
+          result.addAll(imports.flutter);
+        case HeaderSorterOrderItemType.importPackage:
+          result.addAll(imports.package);
+        case HeaderSorterOrderItemType.importProject:
+          result.addAll(imports.project);
+        case HeaderSorterOrderItemType.importRelative:
+          result.addAll(imports.relative);
+        case HeaderSorterOrderItemType.exportDart:
+          result.addAll(exports.dart);
+        case HeaderSorterOrderItemType.exportFlutter:
+          result.addAll(exports.flutter);
+        case HeaderSorterOrderItemType.exportPackage:
+          result.addAll(exports.package);
+        case HeaderSorterOrderItemType.exportProject:
+          result.addAll(exports.project);
+        case HeaderSorterOrderItemType.exportRelative:
+          result.addAll(exports.relative);
+        case HeaderSorterOrderItemType.part:
+          result.addAll(parts.parts);
+        case HeaderSorterOrderItemType.space:
+          result.add('');
+      }
+    }
+    return result;
+  }
+
+  @visibleForTesting
   List<String> buildNewCode({
-    required bool spaceDartFlutter,
-    required bool spaceFlutterPackage,
-    required bool spacePackageProject,
-    required bool spaceProjectRelative,
+    required List<HeaderSorterOrderItemType> sortOrder,
   }) {
     final topCode = code.sublist(0, firstRemoveIndex);
     final bottomCode = code.sublist(firstRemoveIndex);
-    final newCode = [
+
+    final newCode = <String>[
       ...topCode,
-      '',
-      ...imports.sorted(
-        spaceDartFlutter: spaceDartFlutter,
-        spaceFlutterPackage: spaceFlutterPackage,
-        spacePackageProject: spacePackageProject,
-        spaceProjectRelative: spaceProjectRelative,
-      ),
-      '',
-      ...exports.sorted(
-        spaceDartFlutter: spaceDartFlutter,
-        spaceFlutterPackage: spaceFlutterPackage,
-        spacePackageProject: spacePackageProject,
-        spaceProjectRelative: spaceProjectRelative,
-      ),
-      '',
-      ...parts.sorted(),
-      '',
+      ...orderItems(sortOrder: sortOrder),
       ...bottomCode,
     ];
 
@@ -117,18 +137,8 @@ class HeaderSorterHandler {
     return newCode;
   }
 
-  bool save({
-    required bool spaceDartFlutter,
-    required bool spaceFlutterPackage,
-    required bool spacePackageProject,
-    required bool spaceProjectRelative,
-  }) {
-    final newCode = buildNewCode(
-      spaceDartFlutter: spaceDartFlutter,
-      spaceFlutterPackage: spaceFlutterPackage,
-      spacePackageProject: spacePackageProject,
-      spaceProjectRelative: spaceProjectRelative,
-    );
+  bool save({required List<HeaderSorterOrderItemType> sortOrder}) {
+    final newCode = buildNewCode(sortOrder: sortOrder);
 
     final buffer = newCode.join('\n');
     final originalBuffer = originalCode.join('\n');

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter_code_organizer/src/common/common.dart';
+import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
 
@@ -35,12 +36,13 @@ class HeaderInspectorHandler {
   final String projectDir;
   final String projectName;
 
+
   List<HeaderInspectorException> findAllExceptions({
-    required bool forbidThemselfPackageImports,
-    required bool forbidOtherFeaturesPackageImports,
-    required bool forbidRelativeImports,
-    required bool forbidPackageExports,
-    required bool forbidOtherFeaturesRelativeExports,
+    required RemoteInspectorForbidConfig forbidThemselfPackageImports,
+    required RemoteInspectorForbidConfig forbidOtherFeaturesPackageImports,
+    required RemoteInspectorForbidConfig forbidRelativeImports,
+    required RemoteInspectorForbidConfig forbidPackageExports,
+    required RemoteInspectorForbidConfig forbidOtherFeaturesRelativeExports,
   }) {
     final List<HeaderInspectorException> results = [];
 
@@ -51,6 +53,7 @@ class HeaderInspectorHandler {
       final exception = Item(
         file: file,
         projectName: projectName,
+        projectDir: projectDir,
         source: line,
         index: lineIndex - 1,
         features: file.getProjectSRCFeaturesByPath(projectDir),
@@ -76,6 +79,7 @@ class Item {
   Item({
     required this.file,
     required this.projectName,
+    required this.projectDir,
     required this.source,
     required this.index,
     required this.features,
@@ -83,16 +87,17 @@ class Item {
 
   final File file;
   final String projectName;
+  final String projectDir;
   final String source;
   final int index;
   final List<String> features;
 
   HeaderInspectorException? findException({
-    required bool forbidThemselfPackageImports,
-    required bool forbidOtherFeaturesPackageImports,
-    required bool forbidRelativeImports,
-    required bool forbidPackageExports,
-    required bool forbidOtherFeaturesRelativeExports,
+    required RemoteInspectorForbidConfig forbidThemselfPackageImports,
+    required RemoteInspectorForbidConfig forbidOtherFeaturesPackageImports,
+    required RemoteInspectorForbidConfig forbidRelativeImports,
+    required RemoteInspectorForbidConfig forbidPackageExports,
+    required RemoteInspectorForbidConfig forbidOtherFeaturesRelativeExports,
   }) {
     final actionsMap = {
       forbiddenThemselfPackageImports: forbidThemselfPackageImports,
@@ -103,13 +108,24 @@ class Item {
     };
 
     for (final entry in actionsMap.entries) {
-      final flag = entry.value;
+      final forbid = entry.value;
       final action = entry.key;
-      if (flag) {
-        final exception = action();
-        if (exception != null) {
-          return exception;
-        }
+
+      // skip if forbid disabled
+      if (!forbid.enabled.value) {
+        continue;
+      }
+
+      // skip file if it in ignore list.
+      if (forbid.ignoreFiles.value.any((pattern) {
+        return RegExp(pattern).hasMatch(file.getRelativePath(projectDir));
+      })) {
+        continue;
+      }
+
+      final exception = action();
+      if (exception != null) {
+        return exception;
       }
     }
 
@@ -199,16 +215,6 @@ extension ActionItemExtension on Item {
   /// Example:
   ///   export 'package:app/src/feature/sub_feature/file.dart';
   HeaderInspectorException? forbiddenPackageExports() {
-    final r =  findExceptionByCondition(
-      Condition.pattern("^export 'package:$projectName/src"),
-      HeaderInspectorExceptionType.packageExports,
-    );
-    if(r != null) {
-      print('###');
-      print(r);
-      print(features.join('/'));
-    }
-
     return findExceptionByCondition(
       Condition.pattern("^export 'package:$projectName/src"),
       HeaderInspectorExceptionType.packageExports,
