@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import 'package:flutter_code_organizer/src/common/remote_config/extensions/arguments_map_extension.dart';
+import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_handler.dart';
 import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 
@@ -14,13 +14,14 @@ void main() {
   const projectDir = 'test';
 
   final sourceLines = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-  HeaderInspectorHandler.reader = (File file) => sourceLines;
+  List<String> reader(File file) => sourceLines;
 
   test('For each line handler should make a Item', () {
     final handler = HeaderInspectorHandler(
       file: file,
       projectName: projectName,
       projectDir: projectDir,
+      reader: reader,
     );
 
     expect(handler.items, hasLength(10));
@@ -32,13 +33,13 @@ void main() {
         RemoteInspectorForbidConfig(name: 'test', description: 'test')
           ..init(null, ArgumentsMap());
 
-    HeaderInspectorHandler.itemBuilder = ({
-      required File file,
-      required String projectName,
-      required String projectDir,
-      required String source,
-      required int index,
+    Item itemBuilder({
       required List<String> features,
+      required File file,
+      required int index,
+      required String projectDir,
+      required String projectName,
+      required String source,
     }) =>
         item;
 
@@ -46,6 +47,8 @@ void main() {
       file: file,
       projectName: projectName,
       projectDir: projectDir,
+      reader: reader,
+      itemBuilder: itemBuilder,
     );
 
     verifyZeroInteractions(item);

@@ -1,37 +1,50 @@
 import 'dart:io';
 
-import 'package:meta/meta.dart';
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 
 import 'package:flutter_code_organizer/src/common/common.dart';
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
 import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 
 class HeaderInspectorHandler {
-  /// Can be replaced for testing
-  @visibleForTesting
-  static List<String> Function(File file) reader =
-      (File file) => file.readAsLinesSync();
+  static List<String> reader(File file) => file.readAsLinesSync();
 
-  /// Can be replaced for testing
-  @visibleForTesting
-  static Item Function({
-    required File file,
-    required String projectName,
-    required String projectDir,
-    required String source,
-    required int index,
+  static Item itemBuilder({
     required List<String> features,
-  }) itemBuilder = Item.private;
+    required File file,
+    required int index,
+    required String projectDir,
+    required String projectName,
+    required String source,
+  }) =>
+      Item(
+        file: file,
+        projectName: projectName,
+        projectDir: projectDir,
+        source: source,
+        index: index,
+        features: features,
+      );
 
   factory HeaderInspectorHandler({
     required File file,
     required String projectDir,
     required String projectName,
+    List<String> Function(File file)? reader,
+    Item Function({
+      required List<String> features,
+      required File file,
+      required int index,
+      required String projectDir,
+      required String projectName,
+      required String source,
+    })? itemBuilder,
   }) {
     final features = file.getProjectSRCFeaturesByPath(projectDir);
-    final items = reader(file).mapIndexed((index, line) {
-      return itemBuilder(
+    final items = (reader ?? HeaderInspectorHandler.reader)(file)
+        .mapIndexed((index, line) {
+      return (itemBuilder ?? HeaderInspectorHandler.itemBuilder)(
         file: file,
         projectName: projectName,
         projectDir: projectDir,
@@ -40,6 +53,7 @@ class HeaderInspectorHandler {
         features: features,
       );
     });
+
     return HeaderInspectorHandler.private(
       file: file,
       items: items,
@@ -90,7 +104,7 @@ class HeaderInspectorHandler {
 
 @visibleForTesting
 class Item {
-  Item.private({
+  Item({
     required this.file,
     required this.projectName,
     required this.projectDir,

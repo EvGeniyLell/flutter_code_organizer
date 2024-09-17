@@ -2,13 +2,13 @@
 
 import 'dart:io';
 
-import 'package:flutter_code_organizer/src/common/remote_config/extensions/arguments_map_extension.dart';
-import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 import 'package:test/test.dart';
 
 import 'package:flutter_code_organizer/src/common/common.dart';
+import 'package:flutter_code_organizer/src/common/remote_config/extensions/arguments_map_extension.dart';
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_handler.dart';
+import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 
 import 'test_data.dart';
 
@@ -42,7 +42,7 @@ void main() {
     for (final testData in testDataList) {
       index += 1;
       group('Item: $index', () {
-        final item = Item.private(
+        final item = Item(
           index: index,
           projectName: projectName,
           projectDir: projectDir,
