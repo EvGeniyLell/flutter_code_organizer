@@ -1,5 +1,6 @@
-import 'package:flutter_code_organizer/src/common/common.dart';
 import 'package:meta/meta.dart';
+
+import 'package:flutter_code_organizer/src/common/common.dart';
 
 class RemoteInspectorForbidConfig extends RemoteConfigMap {
   factory RemoteInspectorForbidConfig({

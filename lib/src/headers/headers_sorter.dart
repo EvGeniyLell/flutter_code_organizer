@@ -1,13 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter_code_organizer/src/common/common.dart';
-
-import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_handler.dart';
-
-import 'package:flutter_code_organizer/src/headers/utils/printer_extension.dart';
 import 'package:meta/meta.dart';
 
+import 'package:flutter_code_organizer/src/common/common.dart';
+import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_handler.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_order_item_type.dart';
+import 'package:flutter_code_organizer/src/headers/utils/printer_extension.dart';
 
 class HeadersSorterModule extends CommonModule {
   static const yamlConfigName = 'headers_sorter';

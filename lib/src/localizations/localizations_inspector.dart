@@ -1,10 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter_code_organizer/src/common/common.dart';
-import 'package:flutter_code_organizer/src/localizations/localization_inspector/localization_inspector_handler.dart';
-import 'package:flutter_code_organizer/src/localizations/localization_inspector/localization_inspector_exception.dart';
-import 'package:flutter_code_organizer/src/localizations/utils/printer_extension.dart';
 import 'package:meta/meta.dart';
+
+import 'package:flutter_code_organizer/src/common/common.dart';
+import 'package:flutter_code_organizer/src/localizations/localization_inspector/localization_inspector_exception.dart';
+import 'package:flutter_code_organizer/src/localizations/localization_inspector/localization_inspector_handler.dart';
+import 'package:flutter_code_organizer/src/localizations/utils/printer_extension.dart';
 
 class LocalizationsInspectorModule extends CommonModule {
   static const yamlConfigName = 'localizations_inspector';

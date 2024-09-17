@@ -1,4 +1,5 @@
 import 'package:colorize/colorize.dart';
+
 import 'package:flutter_code_organizer/src/common/printer/printer.dart';
 import 'package:flutter_code_organizer/src/common/remote_config/remote_config.dart';
 

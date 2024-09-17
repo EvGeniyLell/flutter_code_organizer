@@ -1,13 +1,12 @@
 import 'dart:io';
 
-import 'package:flutter_code_organizer/src/common/common.dart';
-
-import 'package:flutter_code_organizer/src/headers/utils/printer_extension.dart';
-
-import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_handler.dart';
-import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
-import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 import 'package:meta/meta.dart';
+
+import 'package:flutter_code_organizer/src/common/common.dart';
+import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
+import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_handler.dart';
+import 'package:flutter_code_organizer/src/headers/utils/printer_extension.dart';
+import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 
 class HeadersInspectorModule extends CommonModule {
   static const yamlConfigName = 'headers_inspector';

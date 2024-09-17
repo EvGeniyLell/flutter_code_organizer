@@ -1,9 +1,10 @@
 import 'dart:io';
 
+import 'package:meta/meta.dart';
+
 import 'package:flutter_code_organizer/src/common/common.dart';
 import 'package:flutter_code_organizer/src/localizations/localization_inspector/localization_inspector_exception.dart';
 import 'package:flutter_code_organizer/src/localizations/utils/arb_lines_extension.dart';
-import 'package:meta/meta.dart';
 
 class LocalizationInspectorHandler {
   factory LocalizationInspectorHandler({
