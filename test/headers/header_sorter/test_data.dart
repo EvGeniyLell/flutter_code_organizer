@@ -1,8 +1,3 @@
-
-// List<String> _getLines(String source) {
-//   return LineSplitter.split(source).toList();
-// }
-
 String getFileData() {
   return r'''
 library flutter_code_inspector;

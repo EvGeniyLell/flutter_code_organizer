@@ -48,7 +48,7 @@ void main() {
           projectDir: projectDir,
           file: testData.file,
           source: testData.source,
-          features: testData.file.getProjectSRCFeaturesByPath(projectDir),
+          features: testData.file.getProjectSrcFeaturesByPath(projectDir),
         );
 
         test('forbiddenThemselfPackageImports', () {

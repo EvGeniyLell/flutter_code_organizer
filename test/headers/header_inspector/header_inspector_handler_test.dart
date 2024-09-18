@@ -8,20 +8,22 @@ import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspe
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_handler.dart';
 import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 
+import '../../common/mocks.dart';
+
 void main() {
   final file = File('test/feature_a0.dart');
   const projectName = 'app';
   const projectDir = 'test';
 
   final sourceLines = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-  List<String> reader(File file) => sourceLines;
+  IOManager.instance = MockIOManager();
+  when(() => IOManager().readFile(file)).thenReturn(sourceLines.join('\n'));
 
   test('For each line handler should make a Item', () {
     final handler = HeaderInspectorHandler(
       file: file,
       projectName: projectName,
       projectDir: projectDir,
-      reader: reader,
     );
 
     expect(handler.items, hasLength(10));
@@ -47,7 +49,6 @@ void main() {
       file: file,
       projectName: projectName,
       projectDir: projectDir,
-      reader: reader,
       itemBuilder: itemBuilder,
     );
 
@@ -65,7 +66,7 @@ void main() {
       ),
     ).thenReturn(
       HeaderInspectorException(
-        type: HeaderInspectorExceptionType.themselfPackageImports,
+        type: HeaderInspectorExceptionType.themselfPackageImport,
         file: file,
         source: sourceLines[lineIndex],
         line: lineIndex++,
@@ -92,7 +93,7 @@ void main() {
         return e.every(
               (element) =>
                   element.type ==
-                  HeaderInspectorExceptionType.themselfPackageImports,
+                  HeaderInspectorExceptionType.themselfPackageImport,
             ) &&
             e.every((element) => element.file == file) &&
             e.every((element) => element.source == sourceLines[element.line]);

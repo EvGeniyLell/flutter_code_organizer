@@ -20,7 +20,10 @@ class LocalizationInspectorHandler {
     // like this:
     // "helpAndSupport": "Help & Support",
     final itemRegExp = RegExp(r'"(\w+)": "(.*)",');
-    final items = file.readAsLinesSync().topLevelCompactMap((line, lineNumber) {
+    final items = IOManager()
+        .readFile(file)
+        .split('\n')
+        .topLevelCompactMap((line, lineNumber) {
       final itemMath = itemRegExp.firstMatch(line);
       final key = itemMath?.group(1);
       if (key != null) {
@@ -32,22 +35,24 @@ class LocalizationInspectorHandler {
       }
     });
 
-    return LocalizationInspectorHandler._(
+    return LocalizationInspectorHandler.private(
       file: file,
       locale: locale,
       items: items,
     );
   }
 
-  const LocalizationInspectorHandler._({
+  @visibleForTesting
+  const LocalizationInspectorHandler.private({
     required this.file,
     required this.locale,
-    required List<Item> items,
-  }) : _items = items;
+    required this.items,
+  });
 
   final File file;
   final String locale;
-  final List<Item> _items;
+  @visibleForTesting
+  final List<Item> items;
 
   /// Search for intersections between localizations different features.
   /// If other localization has the same key or value.
@@ -58,8 +63,8 @@ class LocalizationInspectorHandler {
     required bool findValueDuplicates,
   }) {
     final result = <LocalizationInspectorException>[];
-    for (final item in _items) {
-      for (final otherItem in other._items) {
+    for (final item in items) {
+      for (final otherItem in other.items) {
         final keySame = item.key == otherItem.key;
         final valueSame = item.value == otherItem.value;
 
@@ -71,11 +76,11 @@ class LocalizationInspectorHandler {
         }
 
         if (findKeyAndValueDuplicates && keySame && valueSame) {
-          add(LocalizationInspectorExceptionType.keyAndValueSame);
+          add(LocalizationInspectorExceptionType.keyAndValueDuplicate);
         } else if (findKeyDuplicates && keySame) {
-          add(LocalizationInspectorExceptionType.keySame);
+          add(LocalizationInspectorExceptionType.keyDuplicate);
         } else if (findValueDuplicates && valueSame) {
-          add(LocalizationInspectorExceptionType.valueSame);
+          add(LocalizationInspectorExceptionType.valueDuplicate);
         }
       }
     }
@@ -88,8 +93,8 @@ class LocalizationInspectorHandler {
     LocalizationInspectorHandler other,
   ) {
     final result = <LocalizationInspectorException>[];
-    for (final item in _items) {
-      final hasEqualKey = other._items.any((otherItem) {
+    for (final item in items) {
+      final hasEqualKey = other.items.any((otherItem) {
         return otherItem.key == item.key;
       });
       if (!hasEqualKey) {
@@ -110,6 +115,7 @@ class LocalizationInspectorHandler {
 }
 
 @visibleForTesting
+@immutable
 class Item {
   const Item({
     required this.key,
@@ -137,6 +143,18 @@ class Item {
       line: lineIndex,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Item &&
+          runtimeType == other.runtimeType &&
+          key == other.key &&
+          value == other.value &&
+          lineIndex == other.lineIndex;
+
+  @override
+  int get hashCode => key.hashCode ^ value.hashCode ^ lineIndex.hashCode;
 
   @override
   String toString() {

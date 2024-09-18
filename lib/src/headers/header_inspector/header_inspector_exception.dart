@@ -20,11 +20,11 @@ class HeaderInspectorException extends CommonException {
 }
 
 enum HeaderInspectorExceptionType {
-  themselfPackageImports,
-  otherFeaturesPackageImports,
-  relativeImports,
-  packageExports,
-  relativeExports,
+  themselfPackageImport,
+  otherFeaturesPackageImport,
+  relativeImport,
+  packageExport,
+  otherFeaturesRelativeExport,
 }
 
 extension GroupHeaderInspectorExceptionListExtension

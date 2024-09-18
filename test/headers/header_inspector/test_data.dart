@@ -39,7 +39,7 @@ class TestHeaderInspectorHandleItemData {
         file: file, // 4
         source: "import 'package:app/src/feature_a0/feature_a0.dart';",
         forbiddenThemselfPackageImports:
-            HeaderInspectorExceptionType.themselfPackageImports,
+            HeaderInspectorExceptionType.themselfPackageImport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 5
@@ -50,7 +50,7 @@ class TestHeaderInspectorHandleItemData {
         source:
             "import 'package:app/src/feature_a0/feature_a1/feature_a1.dart';",
         forbiddenThemselfPackageImports:
-            HeaderInspectorExceptionType.themselfPackageImports,
+            HeaderInspectorExceptionType.themselfPackageImport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 7
@@ -70,12 +70,12 @@ class TestHeaderInspectorHandleItemData {
       TestHeaderInspectorHandleItemData(
         file: file, // 10
         source: "import 'feature_a0/feature_a1/feature_a2/feature_a4.dart';",
-        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImports,
+        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 11
         source: "import '../feature_a0/feature_a1/feature_a2/feature_a4.dart';",
-        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImports,
+        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 12
@@ -89,7 +89,7 @@ class TestHeaderInspectorHandleItemData {
         file: file, // 14
         source: "import 'package:app/src/feature_b0/feature_b1.dart';",
         forbiddenOtherFeaturesPackageImports:
-            HeaderInspectorExceptionType.otherFeaturesPackageImports,
+            HeaderInspectorExceptionType.otherFeaturesPackageImport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 15
@@ -101,7 +101,7 @@ class TestHeaderInspectorHandleItemData {
         source:
             "import 'package:app/src/feature_b0/feature_b1/feature_b2.dart';",
         forbiddenOtherFeaturesPackageImports:
-            HeaderInspectorExceptionType.otherFeaturesPackageImports,
+            HeaderInspectorExceptionType.otherFeaturesPackageImport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 17
@@ -113,17 +113,17 @@ class TestHeaderInspectorHandleItemData {
         source:
             "import 'package:app/src/feature_b0/feature_b1/feature_b2/feature_b3.dart';",
         forbiddenOtherFeaturesPackageImports:
-            HeaderInspectorExceptionType.otherFeaturesPackageImports,
+            HeaderInspectorExceptionType.otherFeaturesPackageImport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 19
         source: "import 'feature_b0/feature_b1/feature_b2/feature_b4.dart';",
-        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImports,
+        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 20
         source: "import '../feature_b0/feature_b1/feature_b2/feature_b4.dart';",
-        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImports,
+        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 21
@@ -160,12 +160,12 @@ class TestHeaderInspectorHandleItemData {
       TestHeaderInspectorHandleItemData(
         file: file, // 28
         source: "import 'feature_c0/feature_c1/feature_c2/feature_c4.dart';",
-        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImports,
+        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 29
         source: "import '../feature_c0/feature_c1/feature_c2/feature_c4.dart';",
-        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImports,
+        forbiddenRelativeImports: HeaderInspectorExceptionType.relativeImport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 30
@@ -178,41 +178,41 @@ class TestHeaderInspectorHandleItemData {
       TestHeaderInspectorHandleItemData(
         file: file, // 32
         source: "export 'package:app/src/feature_a0.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 33
         source: "export 'package:app/src/feature_a0/feature_a0.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 34
         source: "export 'package:app/src/feature_a0/feature_a1.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 35
         source:
             "export 'package:app/src/feature_a0/feature_a1/feature_a1.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 36
         source:
             "export 'package:app/src/feature_a0/feature_a1/feature_a2.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 37
         source:
             "export 'package:app/src/feature_a0/feature_a1/feature_a2/feature_a2.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 38
         source:
             "export 'package:app/src/feature_a0/feature_a1/feature_a2/feature_a3.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 39
@@ -222,46 +222,46 @@ class TestHeaderInspectorHandleItemData {
         file: file, // 40
         source: "export '../feature_a0/feature_a1/feature_a2/feature_a4.dart';",
         forbiddenOtherFeaturesRelativeExports:
-            HeaderInspectorExceptionType.relativeExports,
+            HeaderInspectorExceptionType.otherFeaturesRelativeExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 41
         source: "export 'package:app/src/feature_b0.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 42
         source: "export 'package:app/src/feature_b0/feature_b0.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 43
         source: "export 'package:app/src/feature_b0/feature_b1.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 44
         source:
             "export 'package:app/src/feature_b0/feature_b1/feature_b1.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 45
         source:
             "export 'package:app/src/feature_b0/feature_b1/feature_b2.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 46
         source:
             "export 'package:app/src/feature_b0/feature_b1/feature_b2/feature_b2.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 47
         source:
             "export 'package:app/src/feature_b0/feature_b1/feature_b2/feature_b3.dart';",
-        forbiddenPackageExports: HeaderInspectorExceptionType.packageExports,
+        forbiddenPackageExports: HeaderInspectorExceptionType.packageExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 48
@@ -271,7 +271,7 @@ class TestHeaderInspectorHandleItemData {
         file: file, // 49
         source: "export '../feature_b0/feature_b1/feature_b2/feature_b4.dart';",
         forbiddenOtherFeaturesRelativeExports:
-            HeaderInspectorExceptionType.relativeExports,
+            HeaderInspectorExceptionType.otherFeaturesRelativeExport,
       ),
       TestHeaderInspectorHandleItemData(
         file: file, // 50
@@ -313,7 +313,7 @@ class TestHeaderInspectorHandleItemData {
         file: file, // 58
         source: "export '../feature_c0/feature_c1/feature_c2/feature_c4.dart';",
         forbiddenOtherFeaturesRelativeExports:
-            HeaderInspectorExceptionType.relativeExports,
+            HeaderInspectorExceptionType.otherFeaturesRelativeExport,
       ),
     ];
   }

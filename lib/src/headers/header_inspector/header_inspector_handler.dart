@@ -7,47 +7,26 @@ import 'package:flutter_code_organizer/src/common/common.dart';
 import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspector_exception.dart';
 import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 
+typedef ItemBuilder = Item Function({
+  required List<String> features,
+  required File file,
+  required int index,
+  required String projectDir,
+  required String projectName,
+  required String source,
+});
+
 class HeaderInspectorHandler {
-  static List<String> defaultReader(File file) {
-    return file.readAsLinesSync();
-  }
-
-  static Item defaultItemBuilder({
-    required List<String> features,
-    required File file,
-    required int index,
-    required String projectDir,
-    required String projectName,
-    required String source,
-  }) {
-    return Item(
-      file: file,
-      projectName: projectName,
-      projectDir: projectDir,
-      source: source,
-      index: index,
-      features: features,
-    );
-  }
-
   factory HeaderInspectorHandler({
     required File file,
     required String projectDir,
     required String projectName,
-    List<String> Function(File file)? reader,
-    Item Function({
-      required List<String> features,
-      required File file,
-      required int index,
-      required String projectDir,
-      required String projectName,
-      required String source,
-    })? itemBuilder,
+    ItemBuilder? itemBuilder,
   }) {
-    final features = file.getProjectSRCFeaturesByPath(projectDir);
-    final items = (reader ?? HeaderInspectorHandler.defaultReader)(file)
-        .mapIndexed((index, line) {
-      return (itemBuilder ?? HeaderInspectorHandler.defaultItemBuilder)(
+    final features = file.getProjectSrcFeaturesByPath(projectDir);
+    final items =
+        IOManager().readFile(file).split('\n').mapIndexed((index, line) {
+      return (itemBuilder ?? Item.new)(
         file: file,
         projectName: projectName,
         projectDir: projectDir,
@@ -107,7 +86,7 @@ class HeaderInspectorHandler {
 
 @visibleForTesting
 class Item {
-  Item({
+  const Item({
     required this.file,
     required this.projectName,
     required this.projectDir,
@@ -196,7 +175,7 @@ extension ActionItemExtension on Item {
         Condition.pattern(
           "^import 'package:$projectName/src/$subPath.dart';\$",
         ),
-        HeaderInspectorExceptionType.themselfPackageImports,
+        HeaderInspectorExceptionType.themselfPackageImport,
       );
       if (result != null) {
         return result;
@@ -224,7 +203,7 @@ extension ActionItemExtension on Item {
           expectation: false,
         ),
       ]),
-      HeaderInspectorExceptionType.otherFeaturesPackageImports,
+      HeaderInspectorExceptionType.otherFeaturesPackageImport,
     );
   }
 
@@ -238,7 +217,7 @@ extension ActionItemExtension on Item {
         Condition.pattern("^import '(?!package:)"),
         Condition.pattern("^import '(?!dart:)"),
       ]),
-      HeaderInspectorExceptionType.relativeImports,
+      HeaderInspectorExceptionType.relativeImport,
     );
   }
 
@@ -248,7 +227,7 @@ extension ActionItemExtension on Item {
   HeaderInspectorException? forbiddenPackageExports() {
     return findExceptionByCondition(
       Condition.pattern("^export 'package:$projectName/src"),
-      HeaderInspectorExceptionType.packageExports,
+      HeaderInspectorExceptionType.packageExport,
     );
   }
 
@@ -258,7 +237,7 @@ extension ActionItemExtension on Item {
   HeaderInspectorException? forbiddenOtherFeaturesRelativeExports() {
     return findExceptionByCondition(
       Condition.pattern("^export '\\.\\./"),
-      HeaderInspectorExceptionType.relativeExports,
+      HeaderInspectorExceptionType.otherFeaturesRelativeExport,
     );
   }
 }

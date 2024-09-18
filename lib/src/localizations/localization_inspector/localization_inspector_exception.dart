@@ -7,29 +7,48 @@ class LocalizationInspectorException extends CommonException {
     required this.key,
     required this.value,
     required super.line,
-    super.row,
   }) : super(source: 'key: $key, value: $value');
 
   final LocalizationInspectorExceptionType type;
   final String key;
   final String? value;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      super == other &&
+          other is LocalizationInspectorException &&
+          runtimeType == other.runtimeType &&
+          type == other.type &&
+          key == other.key &&
+          value == other.value;
+
+  @override
+  int get hashCode =>
+      super.hashCode ^ type.hashCode ^ key.hashCode ^ value.hashCode;
+
+  @override
+  String toString() {
+    return '$LocalizationInspectorException'
+        '{link: ${asLink()}, type: $type, key: $key, value: $value}';
+  }
 }
 
 enum LocalizationInspectorExceptionType {
-  keySame,
-  valueSame,
-  keyAndValueSame,
+  keyDuplicate,
+  valueDuplicate,
+  keyAndValueDuplicate,
   keyMissed,
 }
 
 extension on LocalizationInspectorException {
   bool isCompatible(LocalizationInspectorException other) {
     return switch (type) {
-      LocalizationInspectorExceptionType.keySame =>
+      LocalizationInspectorExceptionType.keyDuplicate =>
         type == other.type && key == other.key,
-      LocalizationInspectorExceptionType.valueSame =>
+      LocalizationInspectorExceptionType.valueDuplicate =>
         type == other.type && value == other.value,
-      LocalizationInspectorExceptionType.keyAndValueSame =>
+      LocalizationInspectorExceptionType.keyAndValueDuplicate =>
         type == other.type && key == other.key && value == other.value,
       LocalizationInspectorExceptionType.keyMissed =>
         type == other.type && key == other.key,

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter_code_organizer/src/common/common.dart';
 import 'package:meta/meta.dart';
 
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_exports_strategy.dart';
@@ -8,34 +9,48 @@ import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_i
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_order_item_type.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_parts_strategy.dart';
 
+typedef ImportsStrategyBuilder = HeaderSorterImportsStrategy Function(
+  List<String> lines, {
+  required String projectName,
+});
+typedef ExportsStrategyBuilder = HeaderSorterExportsStrategy Function(
+  List<String> lines, {
+  required String projectName,
+});
+typedef PartsStrategyBuilder = HeaderSorterPartsStrategy Function(
+  List<String> lines,
+);
+
+typedef HeaderSorterStrategyBuilder = (
+  ImportsStrategyBuilder importsBuilder,
+  ExportsStrategyBuilder exportsBuilder,
+  PartsStrategyBuilder partsBuilder,
+);
+
 class HeaderSorterHandler {
-  static List<String> defaultReader(File file) {
-    // file.readAsLinesSync() works wrong for this case
-    return file.readAsStringSync().split('\n');
-  }
-
-  static void defaultWriter(File file, String content) {
-    return file.writeAsStringSync(content);
-  }
-
   factory HeaderSorterHandler({
     required File file,
     required String projectName,
-    List<String> Function(File file)? reader,
-    void Function(File file, String content)? writer,
+    HeaderSorterStrategyBuilder? strategyBuilder,
   }) {
-    final lines = (reader ?? HeaderSorterHandler.defaultReader)(file);
-    final resolvedWriter = writer ?? HeaderSorterHandler.defaultWriter;
+    final lines = IOManager().readFile(file).split('\n');
     final originalCode = [...lines];
 
     return HeaderSorterHandler.private(
       file: file,
-      imports: HeaderSorterImportsStrategy(lines, projectName: projectName),
-      exports: HeaderSorterExportsStrategy(lines, projectName: projectName),
-      parts: HeaderSorterPartsStrategy(lines),
+      imports: (strategyBuilder?.$1 ?? HeaderSorterImportsStrategy.new)(
+        lines,
+        projectName: projectName,
+      ),
+      exports: (strategyBuilder?.$2 ?? HeaderSorterExportsStrategy.new)(
+        lines,
+        projectName: projectName,
+      ),
+      parts: (strategyBuilder?.$3 ?? HeaderSorterPartsStrategy.new)(
+        lines,
+      ),
       code: lines,
       originalCode: originalCode,
-      writer: resolvedWriter,
     );
   }
 
@@ -47,7 +62,6 @@ class HeaderSorterHandler {
     required this.parts,
     required this.code,
     required this.originalCode,
-    required this.writer,
   });
 
   final File file;
@@ -58,8 +72,6 @@ class HeaderSorterHandler {
 
   final List<String> code;
   final List<String> originalCode;
-
-  final void Function(File file, String content) writer;
 
   int get firstRemoveIndex {
     return [
@@ -157,10 +169,8 @@ class HeaderSorterHandler {
       return false;
     }
 
-    file.writeAsStringSync(buffer);
+    IOManager().writeFile(file, buffer);
 
     return true;
   }
 }
-
-extension Defaults on HeaderSorterHandler {}

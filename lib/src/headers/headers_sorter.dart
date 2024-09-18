@@ -66,7 +66,7 @@ class HeadersSorterModule extends CommonModule {
     final currentPath = Directory.current.path;
 
     final result = measurableBlock<SortingResult>(() {
-      final files = getFiles(
+      final files = IOManager.getFiles(
         currentPath,
         allowedDirectories: allowedDirectories.value,
         allowedExtensions: allowedExtensions.value,

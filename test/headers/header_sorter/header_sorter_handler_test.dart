@@ -1,43 +1,41 @@
 import 'dart:io';
 
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_handler.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_order_item_type.dart';
 
+import '../../common/mocks.dart';
 import 'test_data.dart';
 
 void main() {
   final file = File('test/feature_a0.dart');
   const projectName = 'app';
 
-  test('Sorter Handler: init', () {
-    final resultContent = getFileData();
-    final List<String> lines = resultContent.split('\n');
-    // check that the original data loaded correctly
-    expect(lines, hasLength(61));
+  IOManager.instance = MockIOManager();
 
+  test('Sorter Handler: init', () {
+    when(() => IOManager().readFile(file)).thenReturn(getFileData());
     final handler = HeaderSorterHandler(
       file: file,
       projectName: projectName,
-      reader: (file) => lines,
-      //writer: (file, content) => resultContent = content,
     );
 
-    expect(lines, hasLength(34));
     expect(handler.firstRemoveIndex, 6);
     expect(handler.originalCode, hasLength(61));
     expect(handler.code, hasLength(34));
-
-    //handler.buildNewCode(sortOrder: sortOrder)
   });
 
   group('Sorter Handler: buildNewCode', () {
+    when(() => IOManager().readFile(file)).thenReturn('');
     final handler = HeaderSorterHandler(
       file: file,
       projectName: projectName,
-      reader: (file) => [],
     );
+
+    handler.code.clear();
+
     void replaceItems(List<String> target, List<String> newItems) {
       target
         ..clear()
