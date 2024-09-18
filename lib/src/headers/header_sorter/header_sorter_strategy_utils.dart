@@ -1,3 +1,5 @@
+import 'package:flutter_code_organizer/src/common/common.dart';
+
 /// This function is used to remove lines from the list of [lines]
 /// that match the [pattern].
 /// It also calls the [onRemove] function on each removed line.
@@ -9,13 +11,11 @@ List<String> removeLines(
 }) {
   final result = <String>[];
   final exp = RegExp(pattern, dotAll: true);
-  int lineNumber = 0;
-  lines.removeWhere((line) {
-    lineNumber++;
+  lines.removeWhereIndexed((index, line) {
     final hasMatch = exp.hasMatch(line);
     if (hasMatch) {
       result.add(line);
-      onRemove?.call(lineNumber - 1, line);
+      onRemove?.call(index, line);
     }
     return hasMatch;
   });

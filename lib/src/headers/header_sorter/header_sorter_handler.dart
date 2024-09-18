@@ -3,32 +3,55 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 
+import 'package:flutter_code_organizer/src/common/common.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_exports_strategy.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_imports_strategy.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_order_item_type.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_parts_strategy.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 
-class HeaderSorterHandler {
-  @visibleForTesting
-  static List<String> Function(File file) reader =
-      // file.readAsLinesSync() works wrong for this case
-      (File file) => file.readAsStringSync().split('\n');
+typedef ImportsStrategyBuilder = HeaderSorterImportsStrategy Function(
+  List<String> lines, {
+  required String projectName,
+});
+typedef ExportsStrategyBuilder = HeaderSorterExportsStrategy Function(
+  List<String> lines, {
+  required String projectName,
+});
+typedef PartsStrategyBuilder = HeaderSorterPartsStrategy Function(
+  List<String> lines,
+);
 
+typedef HeaderSorterStrategyBuilder = (
+  ImportsStrategyBuilder importsBuilder,
+  ExportsStrategyBuilder exportsBuilder,
+  PartsStrategyBuilder partsBuilder,
+);
+
+class HeaderSorterHandler {
   factory HeaderSorterHandler({
     required File file,
     required String projectName,
+    HeaderSorterStrategyBuilder? strategyBuilder,
   }) {
-    final lines = reader(file);
+    final lines = IOManager().readFile(file).split('\n');
     final originalCode = [...lines];
-    mergeMultilineLines(lines, startPattern: "^import '", endPattern: ';\$');
-    mergeMultilineLines(lines, startPattern: "^export '", endPattern: ';\$');
-    mergeMultilineLines(lines, startPattern: "^part '", endPattern: ';\$');
+
+    mergeMultilineLines(lines, startPattern: "'''", endPattern: "''';");
+    mergeMultilineLines(lines, startPattern: '"""', endPattern: '""";');
     return HeaderSorterHandler.private(
       file: file,
-      imports: HeaderSorterImportsStrategy(lines, projectName: projectName),
-      exports: HeaderSorterExportsStrategy(lines, projectName: projectName),
-      parts: HeaderSorterPartsStrategy(lines),
+      imports: (strategyBuilder?.$1 ?? HeaderSorterImportsStrategy.new)(
+        lines,
+        projectName: projectName,
+      ),
+      exports: (strategyBuilder?.$2 ?? HeaderSorterExportsStrategy.new)(
+        lines,
+        projectName: projectName,
+      ),
+      parts: (strategyBuilder?.$3 ?? HeaderSorterPartsStrategy.new)(
+        lines,
+      ),
       code: lines,
       originalCode: originalCode,
     );
@@ -74,8 +97,11 @@ class HeaderSorterHandler {
   List<String> orderItems({
     required List<HeaderSorterOrderItemType> sortOrder,
   }) {
+    final resolvedOrder =
+        HeaderSorterOrderItemTypeExtension.mergeWithDefaultOrder(sortOrder);
+
     final result = <String>[];
-    for (final item in sortOrder) {
+    for (final item in resolvedOrder) {
       switch (item) {
         case HeaderSorterOrderItemType.importDart:
           result.addAll(imports.dart);
@@ -146,7 +172,7 @@ class HeaderSorterHandler {
       return false;
     }
 
-    file.writeAsStringSync(buffer);
+    IOManager().writeFile(file, buffer);
 
     return true;
   }

@@ -1,4 +1,8 @@
-extension ARBLinesExtension on List<String> {
+import 'package:meta/meta.dart';
+
+import 'package:flutter_code_organizer/src/common/common.dart';
+
+extension ArbLinesExtension on List<String> {
   /// Call [onTopLevelLine] for each top level line
   ///
   /// For example for this lines
@@ -15,17 +19,15 @@ extension ARBLinesExtension on List<String> {
   ///    "headerTitle": "Some title",
   ///    "Body": "Some other text",
   /// any other string is not top level strings.
-  void forEachTopLevelItem(
-    void Function(String line, int lineNumber) onTopLevelLine,
+  @visibleForTesting
+  void forEachTopLevelItemIndexed(
+    void Function(int lineIndex, String line) onTopLevelLine,
   ) {
     final deepIncreaseExp = RegExp(r'\{');
     final deepDecreaseExp = RegExp(r'\}');
 
-    int lineNumber = 0;
     int deep = 0;
-    for (final line in this) {
-      lineNumber += 1;
-
+    forEachIndexed((index, line) {
       deepIncreaseExp.allMatches(line).forEach((_) {
         deep += 1;
       });
@@ -34,20 +36,20 @@ extension ARBLinesExtension on List<String> {
       });
 
       if (deep > 1) {
-        continue;
+        return;
       }
 
-      onTopLevelLine(line, lineNumber);
-    }
+      onTopLevelLine(index, line);
+    });
   }
 
-  /// Map or [forEachTopLevelItem].
-  List<T> topLevelCompactMap<T>(
-    T? Function(String line, int lineNumber) callback,
+  /// Map for [forEachTopLevelItemIndexed].
+  List<T> topLevelCompactMapIndexed<T>(
+    T? Function(int lineIndex, String line) callback,
   ) {
     final result = <T>[];
-    forEachTopLevelItem((line, lineNumber) {
-      final r = callback(line, lineNumber);
+    forEachTopLevelItemIndexed((lineIndex, line) {
+      final r = callback(lineIndex, line);
       if (r != null) {
         result.add(r);
       }

@@ -20,11 +20,11 @@ extension PrinterLocalizationInspectorExceptionExtension on Printer {
 
     d1(
       switch (exception.type) {
-        LocalizationInspectorExceptionType.keySame =>
+        LocalizationInspectorExceptionType.keyDuplicate =>
           'Key ${e(exception.key)} is duplicated',
-        LocalizationInspectorExceptionType.valueSame =>
+        LocalizationInspectorExceptionType.valueDuplicate =>
           'Value ${e(exception.value?.sample())} is duplicated',
-        LocalizationInspectorExceptionType.keyAndValueSame =>
+        LocalizationInspectorExceptionType.keyAndValueDuplicate =>
           'Key ${e(exception.key)} and Value are duplicated',
         LocalizationInspectorExceptionType.keyMissed =>
           'Key ${e(exception.key)} is missed',

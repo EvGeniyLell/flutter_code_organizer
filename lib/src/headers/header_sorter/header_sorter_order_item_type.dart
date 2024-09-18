@@ -69,5 +69,65 @@ extension HeaderSorterOrderItemTypeExtension on HeaderSorterOrderItemType {
         HeaderSorterOrderItemType.part,
       ];
 
+  static List<HeaderSorterOrderItemType> mergeWithDefaultOrder(
+    List<HeaderSorterOrderItemType> sortOrder,
+  ) {
+    final skipped = <HeaderSorterOrderItemType>[];
+    for (final item in HeaderSorterOrderItemTypeExtension.defaultOrder()) {
+      if (item == HeaderSorterOrderItemType.space) {
+        if (skipped.isNotEmpty &&
+            skipped.lastOrNull != HeaderSorterOrderItemType.space) {
+          skipped.add(item);
+        }
+        continue;
+      }
+      if (sortOrder.contains(item)) {
+        continue;
+      }
+      skipped.add(item);
+    }
+    final result = [
+      ...sortOrder,
+      if (skipped.isNotEmpty) HeaderSorterOrderItemType.space,
+      ...skipped,
+    ];
+
+    void removeUniq(HeaderSorterOrderItemType type) {
+      bool hasType = false;
+      result.removeWhere((element) {
+        if (element == type) {
+          if (hasType) {
+            return true;
+          }
+          hasType = true;
+        }
+        return false;
+      });
+    }
+
+    void removeRepeat(HeaderSorterOrderItemType type) {
+      HeaderSorterOrderItemType? previous;
+      result.removeWhere((element) {
+        if (element == type) {
+          if (previous == type) {
+            return true;
+          }
+        }
+        previous = element;
+        return false;
+      });
+    }
+
+    for (final type in HeaderSorterOrderItemType.values) {
+      if (type == HeaderSorterOrderItemType.space) {
+        removeRepeat(type);
+      } else {
+        removeUniq(type);
+      }
+    }
+
+    return result;
+  }
+
   String get name => map[this]!;
 }
