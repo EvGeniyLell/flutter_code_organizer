@@ -7,7 +7,6 @@ import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_e
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_imports_strategy.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_order_item_type.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_parts_strategy.dart';
-import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 
 class HeaderSorterHandler {
   static List<String> defaultReader(File file) {
