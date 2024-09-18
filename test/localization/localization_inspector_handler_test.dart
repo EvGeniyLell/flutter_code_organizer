@@ -230,9 +230,6 @@ void main() {
         findMissedKeys: true,
       );
 
-      for (final item in duplicates) {
-        print(item);
-      }
       expect(duplicates, hasLength(6));
 
       bool pair({

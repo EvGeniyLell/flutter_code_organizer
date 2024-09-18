@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 import 'package:flutter_code_organizer/src/common/common.dart';

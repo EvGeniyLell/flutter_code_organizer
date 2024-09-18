@@ -38,9 +38,7 @@ void main() {
   });
 
   group('Test Items of HeaderSorterHandler', () {
-    int index = 0;
-    for (final testData in testDataList) {
-      index += 1;
+    testDataList.forEachIndexed((index, testData) {
       group('Item: $index', () {
         final item = Item(
           index: index,
@@ -128,6 +126,6 @@ void main() {
           );
         });
       });
-    }
+    });
   });
 }

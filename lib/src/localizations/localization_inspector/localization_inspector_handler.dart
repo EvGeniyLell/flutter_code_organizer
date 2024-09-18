@@ -23,14 +23,14 @@ class LocalizationInspectorHandler {
     final items = IOManager()
         .readFile(file)
         .split('\n')
-        .topLevelCompactMap((line, lineNumber) {
+        .topLevelCompactMapIndexed((lineIndex, line) {
       final itemMath = itemRegExp.firstMatch(line);
       final key = itemMath?.group(1);
       if (key != null) {
         return Item(
           key: key,
           value: itemMath?.group(2),
-          lineIndex: lineNumber - 1,
+          lineIndex: lineIndex,
         );
       }
     });
@@ -103,7 +103,7 @@ class LocalizationInspectorHandler {
             file: file,
             type: LocalizationInspectorExceptionType.keyMissed,
           ),
-          item.copyWithLineNumber(0).toException(
+          item.copyWithLineIndex(0).toException(
                 file: other.file,
                 type: LocalizationInspectorExceptionType.keyMissed,
               ),
@@ -127,8 +127,8 @@ class Item {
   final String? value;
   final int lineIndex;
 
-  Item copyWithLineNumber(int lineNumber) {
-    return Item(key: key, value: value, lineIndex: lineNumber);
+  Item copyWithLineIndex(int lineIndex) {
+    return Item(key: key, value: value, lineIndex: lineIndex);
   }
 
   LocalizationInspectorException toException({
@@ -159,41 +159,7 @@ class Item {
   @override
   String toString() {
     return '$Item{key: $key, value: $value, '
-        'lineNumber: $lineIndex}';
-  }
-}
-
-extension GroupLocalizationInspectorHandlerIterableExtension
-    on Iterable<LocalizationInspectorHandler> {
-  List<List<LocalizationInspectorHandler>> groupByLocale() {
-    final result = <List<LocalizationInspectorHandler>>[];
-    for (final localizationFile in this) {
-      final index = result.indexWhere((group) {
-        return group.first.locale == localizationFile.locale;
-      });
-      if (index == -1) {
-        result.add([localizationFile]);
-      } else {
-        result[index].add(localizationFile);
-      }
-    }
-    return result;
-  }
-
-  List<List<LocalizationInspectorHandler>> groupByFolder() {
-    final result = <List<LocalizationInspectorHandler>>[];
-    for (final localizationFile in this) {
-      final index = result.indexWhere((group) {
-        return group.first.file.path.fromFilePathToDirPath() ==
-            localizationFile.file.path.fromFilePathToDirPath();
-      });
-      if (index == -1) {
-        result.add([localizationFile]);
-      } else {
-        result[index].add(localizationFile);
-      }
-    }
-    return result;
+        'lineIndex: $lineIndex}';
   }
 }
 
@@ -207,20 +173,16 @@ extension FindLocalizationInspectorHandlerIterableExtension
     final exceptions = <LocalizationInspectorException>{};
     if (findKeyDuplicates || findValueDuplicates || findKeyAndValueDuplicates) {
       groupByLocale().forEach((group) {
-        for (int aIndex = 0; aIndex < group.length; aIndex += 1) {
-          for (int bIndex = aIndex + 1; bIndex < group.length; bIndex += 1) {
-            final aLHandler = group[aIndex];
-            final bLHandler = group[bIndex];
-            exceptions.addAll(
-              aLHandler.findIntersections(
-                bLHandler,
-                findKeyDuplicates: findKeyDuplicates,
-                findValueDuplicates: findValueDuplicates,
-                findKeyAndValueDuplicates: findKeyAndValueDuplicates,
-              ),
-            );
-          }
-        }
+        group.forEachWithEachNext((aLHandler, bLHandler) {
+          exceptions.addAll(
+            aLHandler.findIntersections(
+              bLHandler,
+              findKeyDuplicates: findKeyDuplicates,
+              findValueDuplicates: findValueDuplicates,
+              findKeyAndValueDuplicates: findKeyAndValueDuplicates,
+            ),
+          );
+        });
       });
     }
     return exceptions;
@@ -232,18 +194,28 @@ extension FindLocalizationInspectorHandlerIterableExtension
     final exceptions = <LocalizationInspectorException>{};
     if (findMissedKeys) {
       groupByFolder().forEach((group) {
-        for (int aIndex = 0; aIndex < group.length; aIndex += 1) {
-          for (int bIndex = 0; bIndex < group.length; bIndex += 1) {
-            if (aIndex == bIndex) {
-              continue;
-            }
-            final aLHandler = group[aIndex];
-            final bLHandler = group[bIndex];
-            exceptions.addAll(aLHandler.findMissedKeys(bLHandler));
-          }
-        }
+        group.forEachWithEach((aLHandler, bLHandler) {
+          exceptions.addAll(aLHandler.findMissedKeys(bLHandler));
+        });
       });
     }
     return exceptions;
+  }
+}
+
+@visibleForTesting
+extension GroupLocalizationInspectorHandlerIterableExtension
+on Iterable<LocalizationInspectorHandler> {
+  List<List<LocalizationInspectorHandler>> groupByLocale() {
+    return groupBy((group, element) {
+      return group.first.locale == element.locale;
+    });
+  }
+
+  List<List<LocalizationInspectorHandler>> groupByFolder() {
+    return groupBy((group, element) {
+      return group.first.file.path.fromFilePathToDirPath() ==
+          element.file.path.fromFilePathToDirPath();
+    });
   }
 }
