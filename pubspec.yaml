@@ -1,13 +1,13 @@
 name: flutter_code_organizer
 description: Help organize your flutter code
-version: 0.0.1+7
+version: 0.0.2+7
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
 
 dependencies:
   args: ^2.5.0
-  collection: ^1.19.0
+  collection: ^1.18.0
   colorize: ^3.0.0
   meta: ^1.15.0
   mocktail: any
