@@ -8,24 +8,27 @@ import 'package:flutter_code_organizer/src/headers/header_inspector/header_inspe
 import 'package:flutter_code_organizer/src/headers/utils/remote_config.dart';
 
 class HeaderInspectorHandler {
-  static List<String> reader(File file) => file.readAsLinesSync();
+  static List<String> defaultReader(File file) {
+    return file.readAsLinesSync();
+  }
 
-  static Item itemBuilder({
+  static Item defaultItemBuilder({
     required List<String> features,
     required File file,
     required int index,
     required String projectDir,
     required String projectName,
     required String source,
-  }) =>
-      Item(
-        file: file,
-        projectName: projectName,
-        projectDir: projectDir,
-        source: source,
-        index: index,
-        features: features,
-      );
+  }) {
+    return Item(
+      file: file,
+      projectName: projectName,
+      projectDir: projectDir,
+      source: source,
+      index: index,
+      features: features,
+    );
+  }
 
   factory HeaderInspectorHandler({
     required File file,
@@ -42,9 +45,9 @@ class HeaderInspectorHandler {
     })? itemBuilder,
   }) {
     final features = file.getProjectSRCFeaturesByPath(projectDir);
-    final items = (reader ?? HeaderInspectorHandler.reader)(file)
+    final items = (reader ?? HeaderInspectorHandler.defaultReader)(file)
         .mapIndexed((index, line) {
-      return (itemBuilder ?? HeaderInspectorHandler.itemBuilder)(
+      return (itemBuilder ?? HeaderInspectorHandler.defaultItemBuilder)(
         file: file,
         projectName: projectName,
         projectDir: projectDir,

@@ -10,20 +10,25 @@ import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_p
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 
 class HeaderSorterHandler {
-  @visibleForTesting
-  static List<String> Function(File file) reader =
-      // file.readAsLinesSync() works wrong for this case
-      (File file) => file.readAsStringSync().split('\n');
+  static List<String> defaultReader(File file) {
+    // file.readAsLinesSync() works wrong for this case
+    return file.readAsStringSync().split('\n');
+  }
+
+  static void defaultWriter(File file, String content) {
+    return file.writeAsStringSync(content);
+  }
 
   factory HeaderSorterHandler({
     required File file,
     required String projectName,
+    List<String> Function(File file)? reader,
+    void Function(File file, String content)? writer,
   }) {
-    final lines = reader(file);
+    final lines = (reader ?? HeaderSorterHandler.defaultReader)(file);
+    final resolvedWriter = writer ?? HeaderSorterHandler.defaultWriter;
     final originalCode = [...lines];
-    mergeMultilineLines(lines, startPattern: "^import '", endPattern: ';\$');
-    mergeMultilineLines(lines, startPattern: "^export '", endPattern: ';\$');
-    mergeMultilineLines(lines, startPattern: "^part '", endPattern: ';\$');
+
     return HeaderSorterHandler.private(
       file: file,
       imports: HeaderSorterImportsStrategy(lines, projectName: projectName),
@@ -31,6 +36,7 @@ class HeaderSorterHandler {
       parts: HeaderSorterPartsStrategy(lines),
       code: lines,
       originalCode: originalCode,
+      writer: resolvedWriter,
     );
   }
 
@@ -42,6 +48,7 @@ class HeaderSorterHandler {
     required this.parts,
     required this.code,
     required this.originalCode,
+    required this.writer,
   });
 
   final File file;
@@ -52,6 +59,8 @@ class HeaderSorterHandler {
 
   final List<String> code;
   final List<String> originalCode;
+
+  final void Function(File file, String content) writer;
 
   int get firstRemoveIndex {
     return [
@@ -74,8 +83,11 @@ class HeaderSorterHandler {
   List<String> orderItems({
     required List<HeaderSorterOrderItemType> sortOrder,
   }) {
+    final resolvedOrder =
+        HeaderSorterOrderItemTypeExtension.mergeWithDefaultOrder(sortOrder);
+
     final result = <String>[];
-    for (final item in sortOrder) {
+    for (final item in resolvedOrder) {
       switch (item) {
         case HeaderSorterOrderItemType.importDart:
           result.addAll(imports.dart);
@@ -151,3 +163,5 @@ class HeaderSorterHandler {
     return true;
   }
 }
+
+extension Defaults on HeaderSorterHandler {}

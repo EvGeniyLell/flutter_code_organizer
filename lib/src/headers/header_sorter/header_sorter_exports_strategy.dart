@@ -11,7 +11,7 @@ class HeaderSorterExportsStrategy {
     void onRemove(int index, String line) {
       firstRemoveIndex ??= index;
     }
-
+    mergeMultilineLines(lines, startPattern: "^export '", endPattern: ';\$');
     return HeaderSorterExportsStrategy.private(
       dart: getDart(lines, onRemove: onRemove),
       flutter: getFlutter(lines, onRemove: onRemove),
