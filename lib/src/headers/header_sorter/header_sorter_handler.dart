@@ -8,6 +8,7 @@ import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_e
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_imports_strategy.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_order_item_type.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_parts_strategy.dart';
+import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 
 typedef ImportsStrategyBuilder = HeaderSorterImportsStrategy Function(
   List<String> lines, {
@@ -36,6 +37,8 @@ class HeaderSorterHandler {
     final lines = IOManager().readFile(file).split('\n');
     final originalCode = [...lines];
 
+    mergeMultilineLines(lines, startPattern: "'''", endPattern: "''';");
+    mergeMultilineLines(lines, startPattern: '"""', endPattern: '""";');
     return HeaderSorterHandler.private(
       file: file,
       imports: (strategyBuilder?.$1 ?? HeaderSorterImportsStrategy.new)(

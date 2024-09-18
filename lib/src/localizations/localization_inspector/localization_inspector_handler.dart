@@ -205,7 +205,7 @@ extension FindLocalizationInspectorHandlerIterableExtension
 
 @visibleForTesting
 extension GroupLocalizationInspectorHandlerIterableExtension
-on Iterable<LocalizationInspectorHandler> {
+    on Iterable<LocalizationInspectorHandler> {
   List<List<LocalizationInspectorHandler>> groupByLocale() {
     return groupBy((group, element) {
       return group.first.locale == element.locale;
