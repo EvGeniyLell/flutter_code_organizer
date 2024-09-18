@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:flutter_code_organizer/src/common/utils/files.dart';
 import 'package:meta/meta.dart';
+
+import 'package:flutter_code_organizer/src/common/utils/files.dart';
 
 /// IOManager is a class that provides methods to read and write files.
 /// It also provides a method to get files according to parameters.

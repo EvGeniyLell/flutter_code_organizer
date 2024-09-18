@@ -1,5 +1,6 @@
-import 'package:flutter_code_organizer/src/common/common.dart';
 import 'package:meta/meta.dart';
+
+import 'package:flutter_code_organizer/src/common/common.dart';
 
 extension ArbLinesExtension on List<String> {
   /// Call [onTopLevelLine] for each top level line

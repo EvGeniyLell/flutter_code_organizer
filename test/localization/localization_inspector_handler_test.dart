@@ -2,10 +2,11 @@
 
 import 'dart:io';
 
-import 'package:flutter_code_organizer/src/localizations/localization_inspector/localization_inspector_exception.dart';
-import 'package:flutter_code_organizer/src/localizations/localization_inspector/localization_inspector_handler.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
+
+import 'package:flutter_code_organizer/src/localizations/localization_inspector/localization_inspector_exception.dart';
+import 'package:flutter_code_organizer/src/localizations/localization_inspector/localization_inspector_handler.dart';
 
 import '../common/mocks.dart';
 import 'test_data.dart';

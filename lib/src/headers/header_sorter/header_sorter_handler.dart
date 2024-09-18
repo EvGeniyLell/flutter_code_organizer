@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter_code_organizer/src/common/common.dart';
 import 'package:meta/meta.dart';
 
+import 'package:flutter_code_organizer/src/common/common.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_exports_strategy.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_imports_strategy.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_order_item_type.dart';

@@ -1,7 +1,8 @@
 // ignore_for_file: prefer_single_quotes
 
-import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 import 'package:test/test.dart';
+
+import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 
 void main() {
   setUp(() {});
