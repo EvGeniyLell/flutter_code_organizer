@@ -75,15 +75,31 @@ void main() {
 
     test('groupBy', () {
       final result = source.groupBy((group, element) {
-        if (group.isEmpty) {
-          return true;
-        }
         return group.first.runes.first % 3 == element.runes.first % 3;
       });
       expect(result, hasLength(3));
       expect(result[0], ['A', 'D', 'G', 'J']);
       expect(result[1], ['B', 'E', 'H']);
       expect(result[2], ['C', 'F', 'I']);
+    });
+
+    test('groupBy field of object', () {
+      final source = <String, String>{
+        'A': 'file1',
+        'B': 'file2',
+        'C': 'file2',
+        'D': 'file1',
+        'E': 'file2',
+        'F': 'file3',
+      }.entries;
+      final result = source.groupBy((group, element) {
+        return group.first.value == element.value;
+      });
+      expect(result, hasLength(3));
+      final map = result.map((e) => e.map((e) => e.key).toList()).toList();
+      expect(map[0], ['A', 'D']);
+      expect(map[1], ['B', 'C', 'E']);
+      expect(map[2], ['F']);
     });
   });
 }
