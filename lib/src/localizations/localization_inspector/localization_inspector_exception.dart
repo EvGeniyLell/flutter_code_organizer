@@ -59,17 +59,8 @@ extension on LocalizationInspectorException {
 extension GroupLocalizationFileExceptionExtension
     on List<LocalizationInspectorException> {
   List<List<LocalizationInspectorException>> groupByItem() {
-    final result = <List<LocalizationInspectorException>>[];
-    for (final item in this) {
-      final index = result.indexWhere((group) {
-        return group.first.isCompatible(item);
-      });
-      if (index == -1) {
-        result.add([item]);
-      } else {
-        result[index].add(item);
-      }
-    }
-    return result;
+    return groupBy((group, element) {
+      return group.first.isCompatible(element);
+    });
   }
 }

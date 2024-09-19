@@ -75,9 +75,6 @@ void main() {
 
     test('groupBy', () {
       final result = source.groupBy((group, element) {
-        if (group.isEmpty) {
-          return true;
-        }
         return group.first.runes.first % 3 == element.runes.first % 3;
       });
       expect(result, hasLength(3));

@@ -30,10 +30,8 @@ enum HeaderInspectorExceptionType {
 extension GroupHeaderInspectorExceptionListExtension
     on List<HeaderInspectorException> {
   List<List<HeaderInspectorException>> groupByFile() {
-    final grouped = <String, List<HeaderInspectorException>>{};
-    for (final exception in this) {
-      (grouped[exception.file.path] ??= []).add(exception);
-    }
-    return grouped.values.toList();
+    return groupBy((group, element) {
+      return group.first.file.path == element.file.path;
+    });
   }
 }

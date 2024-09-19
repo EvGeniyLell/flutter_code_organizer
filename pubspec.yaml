@@ -1,6 +1,6 @@
 name: flutter_code_organizer
 description: Help organize your flutter code
-version: 0.0.2+7
+version: 0.0.2+8
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
