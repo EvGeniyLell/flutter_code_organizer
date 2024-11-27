@@ -1,5 +1,6 @@
-import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 import 'package:meta/meta.dart';
+
+import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
 
 class HeaderSorterImportsStrategy {
   factory HeaderSorterImportsStrategy(
