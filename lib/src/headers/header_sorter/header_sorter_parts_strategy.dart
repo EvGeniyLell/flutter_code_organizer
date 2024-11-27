@@ -5,6 +5,9 @@ class HeaderSorterPartsStrategy {
     int? firstRemoveIndex;
     void onRemove(int index, String line) {
       firstRemoveIndex ??= index;
+      if (index < (firstRemoveIndex ?? 0)) {
+        firstRemoveIndex = index;
+      }
     }
 
     mergeMultilineLines(lines, startPattern: "^part '", endPattern: ';\$');
