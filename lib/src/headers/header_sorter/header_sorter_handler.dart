@@ -37,8 +37,8 @@ class HeaderSorterHandler {
     final lines = IOManager().readFile(file).split('\n');
     final originalCode = [...lines];
 
-    mergeMultilineLines(lines, startPattern: "'''", endPattern: "''';");
-    mergeMultilineLines(lines, startPattern: '"""', endPattern: '""";');
+    mergeMultilineLines(lines, startPattern: "'''", endPattern: "'''");
+    mergeMultilineLines(lines, startPattern: '"""', endPattern: '"""');
     return HeaderSorterHandler.private(
       file: file,
       imports: (strategyBuilder?.$1 ?? HeaderSorterImportsStrategy.new)(

@@ -91,6 +91,6 @@ void main() {
       "import 'notifications/notifications.dart';",
     );
 
-    expect(strategy.firstRemoveIndex, 6);
+    expect(strategy.firstRemoveIndex, 5);
   });
 }

@@ -20,7 +20,7 @@ part 'file.g.dart';
     final lines = text.split('\n');
     expect(lines, hasLength(8));
 
-    mergeMultilineLines(lines, startPattern: "'''", endPattern: "''';");
+    mergeMultilineLines(lines, startPattern: "'''", endPattern: "'''");
     expect(lines, hasLength(4));
     expect(lines[0], startsWith("import"));
     expect(lines[0], endsWith("A/A.dart';"));

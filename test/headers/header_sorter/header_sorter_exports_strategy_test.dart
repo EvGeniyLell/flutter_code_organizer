@@ -65,6 +65,6 @@ void main() {
       "export 'ui/splash_page_builder.dart';",
     );
 
-    expect(strategy.firstRemoveIndex, 20);
+    expect(strategy.firstRemoveIndex, 17);
   });
 }

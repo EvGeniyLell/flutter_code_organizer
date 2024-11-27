@@ -22,7 +22,7 @@ void main() {
       projectName: projectName,
     );
 
-    expect(handler.firstRemoveIndex, 6);
+    expect(handler.firstRemoveIndex, 5);
     expect(handler.originalCode, hasLength(61));
     expect(handler.code, hasLength(34));
   });

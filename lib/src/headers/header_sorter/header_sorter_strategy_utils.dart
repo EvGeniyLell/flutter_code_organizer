@@ -33,14 +33,17 @@ void mergeMultilineLines(
   final end = RegExp(endPattern, dotAll: true);
   bool inMultiline = false;
   for (final line in lines) {
-    final hasStart = start.hasMatch(line);
-    if (hasStart) {
-      inMultiline = true;
-    }
+    int startIndex = 0;
     multiline.add(line);
-    final hasEnd = end.hasMatch(line);
-    if (hasEnd) {
+    final startMatch = start.allMatches(line, startIndex).firstOrNull;
+    if (startMatch != null && !inMultiline) {
+      inMultiline = true;
+      startIndex = startMatch.end;
+    }
+    final endMatch = end.allMatches(line, startIndex).firstOrNull;
+    if (endMatch != null && inMultiline) {
       inMultiline = false;
+      startIndex = endMatch.end;
     }
     if (!inMultiline) {
       result.add(multiline.join('\n'));
