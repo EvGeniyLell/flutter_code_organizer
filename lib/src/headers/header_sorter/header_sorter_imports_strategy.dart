@@ -1,6 +1,5 @@
-import 'package:meta/meta.dart';
-
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_strategy_utils.dart';
+import 'package:meta/meta.dart';
 
 class HeaderSorterImportsStrategy {
   factory HeaderSorterImportsStrategy(
@@ -10,6 +9,9 @@ class HeaderSorterImportsStrategy {
     int? firstRemoveIndex;
     void onRemove(int index, String line) {
       firstRemoveIndex ??= index;
+      if (index < (firstRemoveIndex ?? 0)) {
+        firstRemoveIndex = index;
+      }
     }
 
     return HeaderSorterImportsStrategy.private(
