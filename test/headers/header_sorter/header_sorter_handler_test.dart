@@ -5,10 +5,12 @@ import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_o
 import 'package:test/test.dart';
 
 import 'test_source_a1.dart';
+import 'test_source_a2.dart';
 
 void main() {
   final sourceMap = {
     File('test/source_a1.dart'): sourceA1,
+    File('test/source_a2.dart'): sourceA2,
   };
 
   final sortOrder = HeaderSorterOrderItemTypeExtension.defaultOrder();

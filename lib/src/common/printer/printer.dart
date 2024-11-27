@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:meta/meta.dart';
 
 class Printer {
+  static bool debugMode = false;
+
   @visibleForTesting
   static void Function([String? message]) output = stdout.writeln;
 
@@ -69,6 +71,16 @@ class Printer {
   /// RAW string
   void raw(String? message) {
     output(message);
+  }
+
+  /// Debug string
+  void debug(String? Function() getMessage) {
+    if (debugMode) {
+      final message = getMessage();
+      if (message != null) {
+        output('#DEBUG# $message');
+      }
+    }
   }
 
   @visibleForTesting

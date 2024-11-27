@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 
+import 'package:flutter_code_organizer/src/common/common.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_exports_strategy.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_imports_strategy.dart';
 import 'package:flutter_code_organizer/src/headers/header_sorter/header_sorter_order_item_type.dart';
@@ -112,6 +113,10 @@ class HeaderSorterHandler {
   }) {
     final topCode = code.sublist(0, firstRemoveIndex);
     final bottomCode = code.sublist(firstRemoveIndex);
+
+    Printer()
+      ..debug(() => 'topCode: ${topCode.join('\n')}')
+      ..debug(() => 'bottomCode: ${bottomCode.join('\n')}');
 
     final newCode = <String>[
       ...topCode,

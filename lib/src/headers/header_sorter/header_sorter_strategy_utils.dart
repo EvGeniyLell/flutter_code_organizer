@@ -1,3 +1,5 @@
+import 'package:flutter_code_organizer/src/common/common.dart';
+
 /// This function is used to remove lines from the list of [lines]
 /// that match the [pattern].
 /// It also calls the [onRemove] function on each removed line.
@@ -50,5 +52,7 @@ void mergeMultilineLines(
   lines
     ..clear()
     ..addAll(result);
+
+  Printer().debug(() => 'lines after $startPattern: ${lines.join('\n')}');
   return;
 }

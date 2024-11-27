@@ -74,6 +74,9 @@ class HeadersSorterModule extends CommonModule {
 
       final saved = <File>[];
       for (final file in files) {
+        Printer.debugMode = file.path.contains(
+          'shared_preferences_dictionary_local_data_source_test.dart',
+        );
         final isSaved = HeaderSorterHandler(
           file: file,
           projectName: projectName,
